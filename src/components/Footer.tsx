@@ -121,10 +121,12 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 display: "inline-flex",
                 alignItems: "center",
                 gap: "8px",
-                padding: "9px 18px",
-                fontSize: "0.82rem",
+                padding: "10px 18px",
+                minHeight: "44px",
+                fontSize: "0.84rem",
                 borderRadius: "var(--radius-full)",
                 textDecoration: "none",
+                touchAction: "manipulation",
               }}
             >
               <MessageSquare size={15} />
@@ -148,7 +150,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               Pages
             </h5>
 
-            <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "12px", padding: 0 }}>
+            <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "8px", padding: 0 }}>
               <li>
                 <a
                   href="#/"
@@ -158,6 +160,8 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                     color: "var(--text-body)",
                     textDecoration: "none",
                     transition: "color 0.2s ease",
+                    display: "inline-block",
+                    padding: "6px 0",
                   }}
                   onMouseEnter={(e) => (e.currentTarget.style.color = "var(--accent-yellow)")}
                   onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-body)")}
@@ -174,6 +178,8 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                     color: "var(--text-body)",
                     textDecoration: "none",
                     transition: "color 0.2s ease",
+                    display: "inline-block",
+                    padding: "6px 0",
                   }}
                   onMouseEnter={(e) => (e.currentTarget.style.color = "var(--accent-yellow)")}
                   onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-body)")}
@@ -190,6 +196,8 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                     color: "var(--text-body)",
                     textDecoration: "none",
                     transition: "color 0.2s ease",
+                    display: "inline-block",
+                    padding: "6px 0",
                   }}
                   onMouseEnter={(e) => (e.currentTarget.style.color = "var(--accent-yellow)")}
                   onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-body)")}
@@ -227,6 +235,8 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                   color: "var(--text-body)",
                   textDecoration: "none",
                   transition: "color 0.2s ease",
+                  padding: "4px 0",
+                  minHeight: "40px",
                 }}
                 onMouseEnter={(e) => (e.currentTarget.style.color = "var(--accent-yellow)")}
                 onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-body)")}
@@ -245,6 +255,10 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                   color: "var(--text-body)",
                   textDecoration: "none",
                   transition: "color 0.2s ease",
+                  padding: "4px 0",
+                  minHeight: "40px",
+                  overflowWrap: "break-word",
+                  wordBreak: "break-all",
                 }}
                 onMouseEnter={(e) => (e.currentTarget.style.color = "var(--accent-yellow)")}
                 onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-body)")}
@@ -261,6 +275,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                   fontSize: "0.82rem",
                   color: "var(--text-muted)",
                   lineHeight: 1.4,
+                  overflowWrap: "break-word",
                 }}
               >
                 <MapPin size={15} color="var(--accent-yellow)" style={{ flexShrink: 0, marginTop: "2px" }} />
@@ -345,11 +360,13 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               background: "rgba(255, 255, 255, 0.04)",
               border: "1px solid rgba(255, 255, 255, 0.1)",
               color: "var(--text-muted)",
-              padding: "6px 12px",
+              padding: "8px 14px",
+              minHeight: "42px",
               borderRadius: "var(--radius-sm)",
               fontSize: "0.78rem",
               fontFamily: "var(--font-mono)",
               cursor: "pointer",
+              touchAction: "manipulation",
             }}
           >
             <span>Back to top</span>

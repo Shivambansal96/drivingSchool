@@ -49,7 +49,7 @@ export const Pricing: React.FC<PricingProps> = ({ selectedVehicle }) => {
           top: "15%",
           left: "50%",
           transform: "translateX(-50%)",
-          width: "700px",
+          width: "min(700px, 90vw)",
           height: "350px",
           background: "radial-gradient(circle, rgba(255, 229, 0, 0.05) 0%, transparent 70%)",
           filter: "blur(60px)",
@@ -60,11 +60,11 @@ export const Pricing: React.FC<PricingProps> = ({ selectedVehicle }) => {
       <div className="container" style={{ position: "relative", zIndex: 2 }}>
         {/* Section Header */}
         <div className="section-header">
-          <div className="section-tag">20-DAY PRACTICAL CURRICULUM</div>
+          <div className="section-tag">STRUCTURED PRACTICAL MODULES</div>
           <h2 className="section-title">CHOOSE YOUR TRAINING PLAN</h2>
           <p className="section-subtitle">
-            Select a vehicle category to explore available training prices. Every plan includes a 20-day
-            structured driving curriculum with dual-control vehicle safety.
+            Select a vehicle category to explore available training packages. Every plan includes
+            practical hands-on driving with dual-control vehicle safety.
           </p>
         </div>
 
@@ -74,8 +74,8 @@ export const Pricing: React.FC<PricingProps> = ({ selectedVehicle }) => {
             display: "flex",
             justifyContent: "center",
             flexWrap: "wrap",
-            gap: "12px",
-            marginBottom: "32px",
+            gap: "clamp(8px, 2vw, 12px)",
+            marginBottom: "28px",
           }}
         >
           {vehicleCategories.map((cat) => {
@@ -88,8 +88,9 @@ export const Pricing: React.FC<PricingProps> = ({ selectedVehicle }) => {
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
-                  gap: "10px",
-                  padding: "12px 24px",
+                  gap: "8px",
+                  padding: "clamp(8px, 2vw, 12px) clamp(14px, 3.5vw, 22px)",
+                  minHeight: "44px",
                   borderRadius: "var(--radius-full)",
                   background: isSelected
                     ? "linear-gradient(135deg, rgba(255, 229, 0, 0.22) 0%, rgba(255, 229, 0, 0.08) 100%)"
@@ -97,11 +98,12 @@ export const Pricing: React.FC<PricingProps> = ({ selectedVehicle }) => {
                   border: isSelected ? "2px solid var(--accent-yellow)" : "1px solid rgba(255, 255, 255, 0.12)",
                   color: isSelected ? "var(--accent-yellow)" : "var(--text-muted)",
                   fontFamily: "var(--font-display)",
-                  fontSize: "0.92rem",
+                  fontSize: "clamp(0.82rem, 2.2vw, 0.92rem)",
                   fontWeight: isSelected ? 800 : 600,
                   cursor: "pointer",
                   transition: "all 0.25s ease",
                   boxShadow: isSelected ? "0 0 20px rgba(255, 229, 0, 0.2)" : "none",
+                  touchAction: "manipulation",
                 }}
               >
                 {getVehicleIcon(cat.id)}
@@ -126,8 +128,8 @@ export const Pricing: React.FC<PricingProps> = ({ selectedVehicle }) => {
         <div
           style={{
             maxWidth: "760px",
-            margin: "0 auto 40px auto",
-            padding: "14px 20px",
+            margin: "0 auto 36px auto",
+            padding: "clamp(12px, 2.5vw, 16px) clamp(14px, 3vw, 20px)",
             borderRadius: "var(--radius-md)",
             background: "rgba(20, 24, 34, 0.7)",
             border: "1px solid rgba(255, 229, 0, 0.25)",
@@ -142,8 +144,8 @@ export const Pricing: React.FC<PricingProps> = ({ selectedVehicle }) => {
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
             <div
               style={{
-                width: "36px",
-                height: "36px",
+                width: "38px",
+                height: "38px",
                 borderRadius: "8px",
                 background: "rgba(255, 229, 0, 0.12)",
                 display: "flex",
@@ -197,7 +199,7 @@ export const Pricing: React.FC<PricingProps> = ({ selectedVehicle }) => {
                   display: "flex",
                   flexDirection: "column",
                   justifyContent: "space-between",
-                  padding: "clamp(28px, 4vw, 36px) clamp(20px, 3vw, 28px)",
+                  padding: "clamp(24px, 3.5vw, 34px) clamp(16px, 3vw, 26px)",
                   borderRadius: "var(--radius-xl)",
                   background: isFeatured
                     ? "linear-gradient(180deg, rgba(26, 32, 48, 0.95) 0%, rgba(14, 18, 28, 0.98) 100%)"
@@ -218,7 +220,7 @@ export const Pricing: React.FC<PricingProps> = ({ selectedVehicle }) => {
                   <div
                     style={{
                       position: "absolute",
-                      top: "-14px",
+                      top: "-13px",
                       left: "50%",
                       transform: "translateX(-50%)",
                       background: isFeatured
@@ -226,13 +228,16 @@ export const Pricing: React.FC<PricingProps> = ({ selectedVehicle }) => {
                         : "rgba(24, 30, 44, 0.96)",
                       color: isFeatured ? "#000000" : "var(--accent-yellow)",
                       fontFamily: "var(--font-mono)",
-                      fontSize: "0.72rem",
+                      fontSize: "clamp(0.65rem, 1.8vw, 0.72rem)",
                       fontWeight: 800,
-                      padding: "5px 16px",
+                      padding: "4px 12px",
                       borderRadius: "var(--radius-full)",
-                      letterSpacing: "0.08em",
+                      letterSpacing: "0.06em",
                       textTransform: "uppercase",
                       whiteSpace: "nowrap",
+                      maxWidth: "92%",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
                       boxShadow: isFeatured
                         ? "0 4px 18px rgba(255, 229, 0, 0.45)"
                         : "0 4px 14px rgba(0, 0, 0, 0.6)",
@@ -243,16 +248,16 @@ export const Pricing: React.FC<PricingProps> = ({ selectedVehicle }) => {
                     }}
                   >
                     {isFeatured && <Sparkles size={11} style={{ display: "inline", marginRight: "4px" }} />}
-                    {plan.badge}
+                    <span>{plan.badge}</span>
                   </div>
                 )}
 
                 <div>
                   {/* Plan Name & Subtitle */}
-                  <div style={{ marginBottom: "20px", marginTop: plan.badge ? "10px" : "0" }}>
+                  <div style={{ marginBottom: "18px", marginTop: plan.badge ? "10px" : "0" }}>
                     <h3
                       style={{
-                        fontSize: "1.45rem",
+                        fontSize: "clamp(1.25rem, 3.2vw, 1.45rem)",
                         fontWeight: 800,
                         color: "var(--text-white)",
                         marginBottom: "4px",
@@ -266,16 +271,16 @@ export const Pricing: React.FC<PricingProps> = ({ selectedVehicle }) => {
                   {/* Price Block */}
                   <div
                     style={{
-                      padding: "16px 0",
+                      padding: "14px 0",
                       borderTop: "1px solid rgba(255, 255, 255, 0.08)",
                       borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
-                      marginBottom: "22px",
+                      marginBottom: "20px",
                     }}
                   >
-                    <div style={{ display: "flex", alignItems: "baseline", gap: "6px" }}>
+                    <div style={{ display: "flex", alignItems: "baseline", gap: "6px", flexWrap: "wrap" }}>
                       <span
                         style={{
-                          fontSize: "clamp(2.1rem, 5vw, 2.7rem)",
+                          fontSize: "clamp(2rem, 5vw, 2.7rem)",
                           fontWeight: 900,
                           color: isFeatured ? "var(--accent-yellow)" : "var(--text-white)",
                           fontFamily: "var(--font-display)",
@@ -284,16 +289,17 @@ export const Pricing: React.FC<PricingProps> = ({ selectedVehicle }) => {
                       >
                         {plan.priceFormatted}
                       </span>
-                      <span style={{ fontSize: "0.85rem", color: "var(--text-dim)" }}>/ full course</span>
+                      <span style={{ fontSize: "0.82rem", color: "var(--text-dim)" }}>/ full course</span>
                     </div>
 
                     <div
                       style={{
                         display: "flex",
                         alignItems: "center",
-                        gap: "14px",
+                        flexWrap: "wrap",
+                        gap: "6px 10px",
                         marginTop: "10px",
-                        fontSize: "0.8rem",
+                        fontSize: "0.78rem",
                         color: "var(--text-muted)",
                         fontFamily: "var(--font-mono)",
                       }}
@@ -312,11 +318,13 @@ export const Pricing: React.FC<PricingProps> = ({ selectedVehicle }) => {
                       background: "rgba(255, 255, 255, 0.04)",
                       padding: "10px 14px",
                       borderRadius: "var(--radius-sm)",
-                      marginBottom: "20px",
+                      marginBottom: "18px",
                       fontSize: "0.82rem",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "space-between",
+                      flexWrap: "wrap",
+                      gap: "6px",
                     }}
                   >
                     <span style={{ color: "var(--text-muted)" }}>Instructor Ratio:</span>
@@ -326,7 +334,7 @@ export const Pricing: React.FC<PricingProps> = ({ selectedVehicle }) => {
                   </div>
 
                   {/* Plan Features Checklist */}
-                  <div style={{ display: "flex", flexDirection: "column", gap: "11px", marginBottom: "30px" }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "26px" }}>
                     {plan.features.map((feature, fIdx) => (
                       <div
                         key={fIdx}
@@ -334,13 +342,13 @@ export const Pricing: React.FC<PricingProps> = ({ selectedVehicle }) => {
                           display: "flex",
                           alignItems: "flex-start",
                           gap: "10px",
-                          fontSize: "0.86rem",
+                          fontSize: "0.85rem",
                           color: "var(--text-body)",
                           lineHeight: 1.45,
                         }}
                       >
                         <Check
-                          size={16}
+                          size={15}
                           color="var(--accent-yellow)"
                           style={{ flexShrink: 0, marginTop: "2px" }}
                         />
@@ -365,9 +373,11 @@ export const Pricing: React.FC<PricingProps> = ({ selectedVehicle }) => {
                     alignItems: "center",
                     justifyContent: "center",
                     gap: "8px",
-                    padding: "14px",
+                    padding: "13px",
+                    minHeight: "48px",
                     fontSize: "0.9rem",
                     textDecoration: "none",
+                    touchAction: "manipulation",
                   }}
                 >
                   <MessageSquare size={16} />
@@ -387,10 +397,10 @@ export const Pricing: React.FC<PricingProps> = ({ selectedVehicle }) => {
             fontFamily: "var(--font-mono)",
             maxWidth: "700px",
             margin: "0 auto",
+            lineHeight: 1.5,
           }}
         >
-          * All packages span 20 operational days with dual-control safety vehicles and verified fuel.
-          Licence application support available separately at ₹3,000.
+          * Practical driving curriculum with dual-control safety vehicles and verified fuel. Group & Semi-Personal span 20 days; Personal Fast-Track spans 10 days. Licence guidance available separately at ₹3,000.
         </div>
       </div>
     </section>

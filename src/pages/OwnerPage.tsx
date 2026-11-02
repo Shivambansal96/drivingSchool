@@ -31,6 +31,18 @@ export const OwnerPage: React.FC<OwnerPageProps> = ({ onNavigate }) => {
   const [currentCertIndex, setCurrentCertIndex] = useState<number>(0);
   const [lightboxCert, setLightboxCert] = useState<CertificateItem | null>(null);
 
+  // Lock body scroll while certificate lightbox is active
+  React.useEffect(() => {
+    if (lightboxCert) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [lightboxCert]);
+
   // Mobile touch swipe handling
   const touchStartX = useRef<number>(0);
   const touchEndX = useRef<number>(0);
@@ -52,11 +64,11 @@ export const OwnerPage: React.FC<OwnerPageProps> = ({ onNavigate }) => {
   };
 
   const handleTouchEnd = () => {
-    if (touchStartX.current - touchEndX.current > 50) {
+    if (touchStartX.current - touchEndX.current > 45) {
       // Swiped left
       handleNextCert();
     }
-    if (touchEndX.current - touchStartX.current > 50) {
+    if (touchEndX.current - touchStartX.current > 45) {
       // Swiped right
       handlePrevCert();
     }
@@ -75,12 +87,15 @@ export const OwnerPage: React.FC<OwnerPageProps> = ({ onNavigate }) => {
             position: "fixed",
             inset: 0,
             zIndex: 2000,
-            backgroundColor: "rgba(0, 0, 0, 0.92)",
-            backdropFilter: "blur(12px)",
+            backgroundColor: "rgba(0, 0, 0, 0.94)",
+            backdropFilter: "blur(14px)",
+            WebkitBackdropFilter: "blur(14px)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            padding: "20px",
+            padding: "clamp(12px, 3vw, 24px)",
+            overflowY: "auto",
+            overscrollBehavior: "contain",
           }}
           onClick={() => setLightboxCert(null)}
         >
@@ -89,6 +104,9 @@ export const OwnerPage: React.FC<OwnerPageProps> = ({ onNavigate }) => {
               position: "relative",
               maxWidth: "850px",
               width: "100%",
+              maxHeight: "92dvh",
+              display: "flex",
+              flexDirection: "column",
               background: "rgba(16, 20, 30, 0.98)",
               border: "1.5px solid var(--accent-yellow)",
               borderRadius: "var(--radius-xl)",
@@ -103,67 +121,68 @@ export const OwnerPage: React.FC<OwnerPageProps> = ({ onNavigate }) => {
               aria-label="Close certificate lightbox"
               style={{
                 position: "absolute",
-                top: "16px",
-                right: "16px",
-                zIndex: 10,
-                background: "rgba(0, 0, 0, 0.8)",
-                border: "1px solid rgba(255, 255, 255, 0.2)",
+                top: "14px",
+                right: "14px",
+                zIndex: 20,
+                background: "rgba(0, 0, 0, 0.85)",
+                border: "1.5px solid rgba(255, 255, 255, 0.25)",
                 color: "#ffffff",
-                width: "40px",
-                height: "40px",
+                width: "44px",
+                height: "44px",
                 borderRadius: "50%",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 cursor: "pointer",
                 transition: "all 0.2s ease",
+                touchAction: "manipulation",
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.borderColor = "var(--accent-yellow)";
                 e.currentTarget.style.color = "var(--accent-yellow)";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.2)";
+                e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.25)";
                 e.currentTarget.style.color = "#ffffff";
               }}
             >
               <X size={20} />
             </button>
 
-            <div style={{ maxHeight: "70vh", overflow: "hidden", backgroundColor: "#000000" }}>
+            <div style={{ flex: "1 1 auto", minHeight: "220px", maxHeight: "60vh", overflow: "hidden", backgroundColor: "#06080c", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <img
                 src={lightboxCert.image}
                 alt={lightboxCert.title}
                 style={{
                   width: "100%",
-                  height: "auto",
-                  maxHeight: "70vh",
+                  height: "100%",
+                  maxHeight: "60vh",
                   objectFit: "contain",
                   display: "block",
                 }}
               />
             </div>
 
-            <div style={{ padding: "24px" }}>
+            <div style={{ padding: "clamp(16px, 3vw, 24px)", overflowY: "auto" }}>
               <div
                 style={{
                   fontFamily: "var(--font-mono)",
-                  fontSize: "0.75rem",
+                  fontSize: "0.74rem",
                   color: "var(--accent-yellow)",
                   fontWeight: 800,
-                  marginBottom: "6px",
+                  marginBottom: "4px",
                   letterSpacing: "0.08em",
                 }}
               >
                 {lightboxCert.badge} • {lightboxCert.year}
               </div>
-              <h3 style={{ fontSize: "1.3rem", fontWeight: 800, color: "#ffffff", marginBottom: "8px" }}>
+              <h3 style={{ fontSize: "clamp(1.1rem, 2.5vw, 1.35rem)", fontWeight: 800, color: "#ffffff", marginBottom: "6px" }}>
                 {lightboxCert.title}
               </h3>
-              <p style={{ fontSize: "0.88rem", color: "var(--text-body)", lineHeight: 1.5, marginBottom: "8px" }}>
+              <p style={{ fontSize: "0.85rem", color: "var(--text-body)", lineHeight: 1.5, marginBottom: "8px" }}>
                 {lightboxCert.description}
               </p>
-              <div style={{ fontSize: "0.78rem", color: "var(--text-dim)", fontFamily: "var(--font-mono)" }}>
+              <div style={{ fontSize: "0.76rem", color: "var(--text-dim)", fontFamily: "var(--font-mono)" }}>
                 Issued by: {lightboxCert.issuer}
               </div>
             </div>
@@ -178,8 +197,8 @@ export const OwnerPage: React.FC<OwnerPageProps> = ({ onNavigate }) => {
           style={{
             position: "absolute",
             top: "10%",
-            left: "5%",
-            width: "600px",
+            left: "0",
+            width: "min(600px, 90vw)",
             height: "400px",
             background: "radial-gradient(circle, rgba(255, 229, 0, 0.05) 0%, transparent 70%)",
             filter: "blur(60px)",
@@ -237,7 +256,7 @@ export const OwnerPage: React.FC<OwnerPageProps> = ({ onNavigate }) => {
                   alt={owner.name}
                   style={{
                     width: "100%",
-                    height: "clamp(340px, 50vw, 480px)",
+                    height: "clamp(300px, 50vw, 480px)",
                     objectFit: "cover",
                     display: "block",
                   }}
@@ -248,7 +267,7 @@ export const OwnerPage: React.FC<OwnerPageProps> = ({ onNavigate }) => {
                   style={{
                     position: "absolute",
                     inset: 0,
-                    background: "linear-gradient(180deg, transparent 55%, rgba(8, 9, 12, 0.95) 100%)",
+                    background: "linear-gradient(180deg, transparent 50%, rgba(8, 9, 12, 0.95) 100%)",
                   }}
                 />
 
@@ -256,24 +275,26 @@ export const OwnerPage: React.FC<OwnerPageProps> = ({ onNavigate }) => {
                 <div
                   style={{
                     position: "absolute",
-                    bottom: "20px",
-                    left: "20px",
-                    right: "20px",
-                    background: "rgba(16, 20, 30, 0.88)",
+                    bottom: "clamp(12px, 3vw, 20px)",
+                    left: "clamp(12px, 3vw, 20px)",
+                    right: "clamp(12px, 3vw, 20px)",
+                    background: "rgba(16, 20, 30, 0.92)",
                     backdropFilter: "blur(12px)",
+                    WebkitBackdropFilter: "blur(12px)",
                     border: "1px solid rgba(255, 229, 0, 0.3)",
-                    padding: "14px 18px",
+                    padding: "clamp(10px, 2.5vw, 14px) clamp(12px, 3vw, 18px)",
                     borderRadius: "var(--radius-md)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "space-between",
+                    gap: "10px",
                   }}
                 >
-                  <div>
-                    <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.72rem", color: "var(--accent-yellow)", textTransform: "uppercase" }}>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontFamily: "var(--font-mono)", fontSize: "clamp(0.65rem, 1.8vw, 0.72rem)", color: "var(--accent-yellow)", textTransform: "uppercase", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                       Certified Senior Master Instructor
                     </div>
-                    <div style={{ fontSize: "1.05rem", fontWeight: 800, color: "#ffffff" }}>
+                    <div style={{ fontSize: "clamp(0.95rem, 2.5vw, 1.05rem)", fontWeight: 800, color: "#ffffff", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                       {owner.name}
                     </div>
                   </div>
@@ -283,9 +304,12 @@ export const OwnerPage: React.FC<OwnerPageProps> = ({ onNavigate }) => {
                       color: "#000000",
                       fontFamily: "var(--font-display)",
                       fontWeight: 900,
-                      fontSize: "1.1rem",
-                      padding: "6px 12px",
+                      fontSize: "clamp(0.95rem, 2.5vw, 1.1rem)",
+                      padding: "6px 10px",
                       borderRadius: "6px",
+                      flexShrink: 0,
+                      textAlign: "center",
+                      lineHeight: 1.1,
                     }}
                   >
                     {owner.experienceYears}
@@ -389,9 +413,9 @@ export const OwnerPage: React.FC<OwnerPageProps> = ({ onNavigate }) => {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 200px), 1fr))",
-              gap: "20px",
-              padding: "clamp(20px, 3.5vw, 32px)",
+              gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 140px), 1fr))",
+              gap: "clamp(12px, 2.5vw, 20px)",
+              padding: "clamp(16px, 3.5vw, 32px)",
               borderRadius: "var(--radius-xl)",
               background: "linear-gradient(180deg, rgba(20, 24, 36, 0.8) 0%, rgba(12, 14, 22, 0.95) 100%)",
               border: "1px solid rgba(255, 255, 255, 0.08)",
@@ -403,22 +427,23 @@ export const OwnerPage: React.FC<OwnerPageProps> = ({ onNavigate }) => {
               { label: "Fleet Safety Standard", value: "100%", note: "Equipped with dual-pedal emergency intervention" },
               { label: "Government RTO Track Pass", value: "98%+", note: "Structured preparation for LL & DL trials" },
             ].map((stat, sIdx) => (
-              <div key={sIdx} style={{ textAlign: "center", padding: "10px" }}>
+              <div key={sIdx} style={{ textAlign: "center", padding: "clamp(6px, 1.5vw, 10px)" }}>
                 <div
                   style={{
-                    fontSize: "clamp(1.8rem, 3.5vw, 2.3rem)",
+                    fontSize: "clamp(1.5rem, 3.5vw, 2.3rem)",
                     fontWeight: 900,
                     color: "var(--accent-yellow)",
                     fontFamily: "var(--font-display)",
                     marginBottom: "4px",
+                    lineHeight: 1.1,
                   }}
                 >
                   {stat.value}
                 </div>
-                <div style={{ fontSize: "0.88rem", fontWeight: 700, color: "var(--text-white)", marginBottom: "4px" }}>
+                <div style={{ fontSize: "clamp(0.78rem, 2vw, 0.88rem)", fontWeight: 700, color: "var(--text-white)", marginBottom: "4px" }}>
                   {stat.label}
                 </div>
-                <div style={{ fontSize: "0.74rem", color: "var(--text-dim)", lineHeight: 1.4 }}>
+                <div style={{ fontSize: "clamp(0.68rem, 1.8vw, 0.74rem)", color: "var(--text-dim)", lineHeight: 1.35 }}>
                   {stat.note}
                 </div>
               </div>
@@ -539,6 +564,7 @@ export const OwnerPage: React.FC<OwnerPageProps> = ({ onNavigate }) => {
                 background: "linear-gradient(180deg, rgba(20, 24, 36, 0.92) 0%, rgba(10, 12, 18, 0.98) 100%)",
                 boxShadow: "0 20px 50px rgba(0, 0, 0, 0.8), 0 0 35px rgba(255, 229, 0, 0.15)",
                 transition: "all 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
+                touchAction: "pan-y",
               }}
             >
               <div
@@ -559,9 +585,12 @@ export const OwnerPage: React.FC<OwnerPageProps> = ({ onNavigate }) => {
                   style={{
                     position: "relative",
                     height: "clamp(260px, 45vw, 380px)",
-                    backgroundColor: "#000000",
+                    backgroundColor: "#06080c",
                     cursor: "pointer",
                     overflow: "hidden",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                   }}
                   title="Click to view full certificate"
                 >
@@ -571,10 +600,11 @@ export const OwnerPage: React.FC<OwnerPageProps> = ({ onNavigate }) => {
                     style={{
                       width: "100%",
                       height: "100%",
-                      objectFit: "cover",
+                      objectFit: "contain",
                       transition: "transform 0.4s ease",
+                      padding: "8px",
                     }}
-                    onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
+                    onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
                     onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
                   />
 
@@ -582,10 +612,11 @@ export const OwnerPage: React.FC<OwnerPageProps> = ({ onNavigate }) => {
                   <div
                     style={{
                       position: "absolute",
-                      bottom: "14px",
-                      right: "14px",
-                      background: "rgba(10, 12, 18, 0.85)",
+                      bottom: "12px",
+                      right: "12px",
+                      background: "rgba(10, 12, 18, 0.88)",
                       backdropFilter: "blur(8px)",
+                      WebkitBackdropFilter: "blur(8px)",
                       border: "1px solid rgba(255, 229, 0, 0.4)",
                       color: "var(--accent-yellow)",
                       padding: "6px 12px",
@@ -604,7 +635,7 @@ export const OwnerPage: React.FC<OwnerPageProps> = ({ onNavigate }) => {
                 </div>
 
                 {/* Certificate Details */}
-                <div style={{ padding: "clamp(24px, 4vw, 40px)", display: "flex", flexDirection: "column", gap: "14px" }}>
+                <div style={{ padding: "clamp(20px, 4vw, 36px)", display: "flex", flexDirection: "column", gap: "14px" }}>
                   <div
                     style={{
                       display: "inline-flex",
@@ -627,7 +658,7 @@ export const OwnerPage: React.FC<OwnerPageProps> = ({ onNavigate }) => {
 
                   <h3
                     style={{
-                      fontSize: "clamp(1.25rem, 3vw, 1.55rem)",
+                      fontSize: "clamp(1.2rem, 3vw, 1.55rem)",
                       fontWeight: 800,
                       color: "#ffffff",
                       lineHeight: 1.25,
@@ -674,8 +705,10 @@ export const OwnerPage: React.FC<OwnerPageProps> = ({ onNavigate }) => {
                         onClick={handlePrevCert}
                         aria-label="Previous certificate"
                         style={{
-                          width: "42px",
-                          height: "42px",
+                          width: "46px",
+                          height: "46px",
+                          minWidth: "46px",
+                          minHeight: "46px",
                           borderRadius: "50%",
                           background: "rgba(255, 255, 255, 0.06)",
                           border: "1px solid rgba(255, 255, 255, 0.15)",
@@ -685,6 +718,7 @@ export const OwnerPage: React.FC<OwnerPageProps> = ({ onNavigate }) => {
                           justifyContent: "center",
                           cursor: "pointer",
                           transition: "all 0.2s ease",
+                          touchAction: "manipulation",
                         }}
                         onMouseEnter={(e) => {
                           e.currentTarget.style.borderColor = "var(--accent-yellow)";
@@ -703,8 +737,10 @@ export const OwnerPage: React.FC<OwnerPageProps> = ({ onNavigate }) => {
                         onClick={handleNextCert}
                         aria-label="Next certificate"
                         style={{
-                          width: "42px",
-                          height: "42px",
+                          width: "46px",
+                          height: "46px",
+                          minWidth: "46px",
+                          minHeight: "46px",
                           borderRadius: "50%",
                           background: "rgba(255, 255, 255, 0.06)",
                           border: "1px solid rgba(255, 255, 255, 0.15)",
@@ -714,6 +750,7 @@ export const OwnerPage: React.FC<OwnerPageProps> = ({ onNavigate }) => {
                           justifyContent: "center",
                           cursor: "pointer",
                           transition: "all 0.2s ease",
+                          touchAction: "manipulation",
                         }}
                         onMouseEnter={(e) => {
                           e.currentTarget.style.borderColor = "var(--accent-yellow)";
@@ -742,7 +779,7 @@ export const OwnerPage: React.FC<OwnerPageProps> = ({ onNavigate }) => {
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
-                gap: "12px",
+                gap: "10px",
                 marginTop: "24px",
                 flexWrap: "wrap",
               }}
@@ -756,7 +793,8 @@ export const OwnerPage: React.FC<OwnerPageProps> = ({ onNavigate }) => {
                     display: "flex",
                     alignItems: "center",
                     gap: "8px",
-                    padding: "6px 14px",
+                    padding: "8px 14px",
+                    minHeight: "44px",
                     borderRadius: "var(--radius-full)",
                     background:
                       cIdx === currentCertIndex
@@ -772,6 +810,7 @@ export const OwnerPage: React.FC<OwnerPageProps> = ({ onNavigate }) => {
                     fontWeight: 700,
                     cursor: "pointer",
                     transition: "all 0.2s ease",
+                    touchAction: "manipulation",
                   }}
                 >
                   <span
@@ -847,7 +886,7 @@ export const OwnerPage: React.FC<OwnerPageProps> = ({ onNavigate }) => {
               display: "flex",
               justifyContent: "center",
               flexWrap: "wrap",
-              gap: "16px",
+              gap: "14px",
             }}
           >
             <button
@@ -857,9 +896,12 @@ export const OwnerPage: React.FC<OwnerPageProps> = ({ onNavigate }) => {
               style={{
                 display: "inline-flex",
                 alignItems: "center",
+                justifyContent: "center",
                 gap: "8px",
                 padding: "14px 28px",
                 fontSize: "0.92rem",
+                minHeight: "48px",
+                minWidth: "min(100%, 200px)",
                 borderRadius: "var(--radius-full)",
                 cursor: "pointer",
               }}
@@ -875,9 +917,12 @@ export const OwnerPage: React.FC<OwnerPageProps> = ({ onNavigate }) => {
               style={{
                 display: "inline-flex",
                 alignItems: "center",
+                justifyContent: "center",
                 gap: "8px",
                 padding: "14px 28px",
                 fontSize: "0.92rem",
+                minHeight: "48px",
+                minWidth: "min(100%, 200px)",
                 borderRadius: "var(--radius-full)",
                 cursor: "pointer",
               }}

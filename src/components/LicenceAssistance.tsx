@@ -112,12 +112,16 @@ export const LicenceAssistance: React.FC = () => {
                   rel="noopener noreferrer"
                   className="btn btn-primary"
                   style={{
+                    width: "100%",
                     display: "inline-flex",
                     alignItems: "center",
+                    justifyContent: "center",
                     gap: "8px",
-                    padding: "12px 24px",
-                    fontSize: "0.88rem",
+                    padding: "13px 24px",
+                    minHeight: "48px",
+                    fontSize: "0.9rem",
                     textDecoration: "none",
+                    touchAction: "manipulation",
                   }}
                 >
                   <MessageSquare size={16} />

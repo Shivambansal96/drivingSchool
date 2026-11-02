@@ -319,7 +319,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                 justifyContent: "center",
                 gap: "6px",
                 padding: "8px 12px",
-                minHeight: "40px",
+                minHeight: "44px",
+                minWidth: "44px",
                 borderRadius: "var(--radius-full)",
                 background:
                   currentLanguage !== "en"
@@ -331,9 +332,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                 fontFamily: "var(--font-display)",
                 fontWeight: 700,
                 cursor: "pointer",
+                touchAction: "manipulation",
               }}
             >
-              <Globe size={15} />
+              <Globe size={16} />
               <span className="mobile-translate-label">
                 {currentLanguage !== "en"
                   ? SUPPORTED_LANGUAGES.find((l) => l.code === currentLanguage)?.name || "Translate"
@@ -344,19 +346,22 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Mobile Hamburger Toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="Toggle navigation menu"
+              aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+              aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-nav-drawer"
               style={{
-                padding: "8px 10px",
-                minHeight: "40px",
-                minWidth: "40px",
+                padding: "10px",
+                minHeight: "44px",
+                minWidth: "44px",
                 color: "var(--text-white)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 background: "rgba(255, 255, 255, 0.05)",
-                border: "1px solid rgba(255, 255, 255, 0.12)",
-                borderRadius: "8px",
+                border: "1px solid rgba(255, 255, 255, 0.15)",
+                borderRadius: "10px",
                 cursor: "pointer",
+                touchAction: "manipulation",
               }}
             >
               {mobileMenuOpen ? <X size={22} color="var(--accent-yellow)" /> : <Menu size={22} />}
@@ -368,21 +373,27 @@ export const Navbar: React.FC<NavbarProps> = ({
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
         <div
+          id="mobile-nav-drawer"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Mobile navigation menu"
           style={{
             position: "fixed",
             top: "var(--header-height)",
             left: 0,
             right: 0,
             bottom: 0,
+            height: "calc(100dvh - var(--header-height))",
             background: "rgba(6, 7, 10, 0.98)",
             backdropFilter: "blur(24px)",
             WebkitBackdropFilter: "blur(24px)",
             zIndex: 1200,
-            padding: "24px 20px",
+            padding: "clamp(16px, 4vw, 24px) clamp(16px, 4vw, 20px)",
             display: "flex",
             flexDirection: "column",
             justifyContent: "space-between",
             overflowY: "auto",
+            overscrollBehavior: "contain",
           }}
         >
           <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>

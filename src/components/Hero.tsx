@@ -12,12 +12,12 @@ export const Hero: React.FC<HeroProps> = ({ onExploreCourses, onContactUs }) => 
       id="home"
       style={{
         position: "relative",
-        minHeight: "100vh",
+        minHeight: "calc(100dvh - var(--header-height))",
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
-        paddingTop: "calc(var(--header-height) + 20px)",
-        paddingBottom: "60px",
+        paddingTop: "calc(var(--header-height) + clamp(16px, 3vw, 28px))",
+        paddingBottom: "clamp(40px, 6vw, 64px)",
         overflow: "hidden",
         backgroundColor: "var(--bg-primary)",
       }}
@@ -29,7 +29,7 @@ export const Hero: React.FC<HeroProps> = ({ onExploreCourses, onContactUs }) => 
           top: "10%",
           left: "50%",
           transform: "translateX(-50%)",
-          width: "900px",
+          width: "clamp(300px, 90vw, 900px)",
           height: "450px",
           background: "radial-gradient(circle, rgba(255, 229, 0, 0.08) 0%, rgba(8, 9, 12, 0) 70%)",
           filter: "blur(60px)",
@@ -42,8 +42,8 @@ export const Hero: React.FC<HeroProps> = ({ onExploreCourses, onContactUs }) => 
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 300px), 1fr))",
-            gap: "clamp(24px, 4vw, 40px)",
+            gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 320px), 1fr))",
+            gap: "clamp(28px, 4vw, 48px)",
             alignItems: "center",
           }}
         >
@@ -53,10 +53,12 @@ export const Hero: React.FC<HeroProps> = ({ onExploreCourses, onContactUs }) => 
             <div
               className="section-tag"
               style={{
-                marginBottom: "20px",
+                marginBottom: "18px",
                 display: "inline-flex",
                 alignItems: "center",
                 gap: "8px",
+                maxWidth: "100%",
+                textWrap: "balance",
               }}
             >
               <span
@@ -66,21 +68,23 @@ export const Hero: React.FC<HeroProps> = ({ onExploreCourses, onContactUs }) => 
                   borderRadius: "50%",
                   background: "var(--accent-yellow)",
                   boxShadow: "0 0 10px var(--accent-yellow)",
+                  flexShrink: 0,
                 }}
               />
-              GOVERNMENT APPROVED CURRICULUM • 20-DAY MODULES
+              <span>GOVERNMENT APPROVED CURRICULUM</span>
             </div>
 
             {/* Main Heading: Triple Stack Power Typography */}
             <h1
               style={{
-                fontSize: "clamp(2.1rem, 5.5vw, 4.2rem)",
+                fontSize: "clamp(2rem, 5.8vw, 4.2rem)",
                 fontWeight: 900,
-                lineHeight: 1.05,
+                lineHeight: 1.08,
                 letterSpacing: "-0.03em",
                 color: "var(--text-white)",
                 textTransform: "uppercase",
-                marginBottom: "20px",
+                marginBottom: "18px",
+                textWrap: "balance",
               }}
             >
               YOUR ROAD.
@@ -100,11 +104,12 @@ export const Hero: React.FC<HeroProps> = ({ onExploreCourses, onContactUs }) => 
             {/* Supporting Text */}
             <p
               style={{
-                fontSize: "clamp(0.95rem, 1.3vw, 1.15rem)",
+                fontSize: "clamp(0.92rem, 1.35vw, 1.15rem)",
                 color: "var(--text-body)",
                 lineHeight: 1.6,
-                marginBottom: "32px",
+                marginBottom: "28px",
                 maxWidth: "540px",
+                textWrap: "pretty",
               }}
             >
               Learn to drive with confidence. From your first two-wheeler ride to mastering
@@ -122,25 +127,27 @@ export const Hero: React.FC<HeroProps> = ({ onExploreCourses, onContactUs }) => 
                 flexWrap: "wrap",
                 alignItems: "center",
                 gap: "14px",
-                marginBottom: "36px",
+                marginBottom: "32px",
               }}
             >
               <button
+                type="button"
                 onClick={onExploreCourses}
                 className="btn btn-primary"
                 style={{ padding: "14px 28px", fontSize: "0.95rem" }}
               >
-                Explore Courses
+                <span>Explore Courses</span>
                 <ArrowRight size={18} />
               </button>
 
               <button
+                type="button"
                 onClick={onContactUs}
                 className="btn btn-secondary"
                 style={{ padding: "14px 24px", fontSize: "0.95rem" }}
               >
                 <PhoneCall size={18} />
-                Contact Us
+                <span>Contact Us</span>
               </button>
             </div>
 
@@ -149,7 +156,7 @@ export const Hero: React.FC<HeroProps> = ({ onExploreCourses, onContactUs }) => 
               style={{
                 display: "grid",
                 gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 85px), 1fr))",
-                gap: "12px",
+                gap: "clamp(8px, 2vw, 16px)",
                 paddingTop: "20px",
                 borderTop: "1px solid rgba(255, 255, 255, 0.1)",
               }}
@@ -158,7 +165,7 @@ export const Hero: React.FC<HeroProps> = ({ onExploreCourses, onContactUs }) => 
                 <div
                   style={{
                     fontFamily: "var(--font-mono)",
-                    fontSize: "1.3rem",
+                    fontSize: "clamp(1.15rem, 3.2vw, 1.35rem)",
                     fontWeight: 800,
                     color: "var(--accent-yellow)",
                   }}
@@ -168,9 +175,10 @@ export const Hero: React.FC<HeroProps> = ({ onExploreCourses, onContactUs }) => 
                 <div
                   style={{
                     fontFamily: "var(--font-body)",
-                    fontSize: "0.78rem",
+                    fontSize: "clamp(0.72rem, 1.8vw, 0.78rem)",
                     color: "var(--text-muted)",
                     marginTop: "2px",
+                    lineHeight: 1.3,
                   }}
                 >
                   2W, 4W & Heavy Commercial
@@ -181,19 +189,20 @@ export const Hero: React.FC<HeroProps> = ({ onExploreCourses, onContactUs }) => 
                 <div
                   style={{
                     fontFamily: "var(--font-mono)",
-                    fontSize: "1.3rem",
+                    fontSize: "clamp(1.15rem, 3.2vw, 1.35rem)",
                     fontWeight: 800,
                     color: "var(--text-white)",
                   }}
                 >
-                  20 DAYS
+                  10–20 DAYS
                 </div>
                 <div
                   style={{
                     fontFamily: "var(--font-body)",
-                    fontSize: "0.78rem",
+                    fontSize: "clamp(0.72rem, 1.8vw, 0.78rem)",
                     color: "var(--text-muted)",
                     marginTop: "2px",
+                    lineHeight: 1.3,
                   }}
                 >
                   Structured Daily Training
@@ -204,7 +213,7 @@ export const Hero: React.FC<HeroProps> = ({ onExploreCourses, onContactUs }) => 
                 <div
                   style={{
                     fontFamily: "var(--font-mono)",
-                    fontSize: "1.3rem",
+                    fontSize: "clamp(1.15rem, 3.2vw, 1.35rem)",
                     fontWeight: 800,
                     color: "var(--text-white)",
                   }}
@@ -214,9 +223,10 @@ export const Hero: React.FC<HeroProps> = ({ onExploreCourses, onContactUs }) => 
                 <div
                   style={{
                     fontFamily: "var(--font-body)",
-                    fontSize: "0.78rem",
+                    fontSize: "clamp(0.72rem, 1.8vw, 0.78rem)",
                     color: "var(--text-muted)",
                     marginTop: "2px",
+                    lineHeight: 1.3,
                   }}
                 >
                   3 Morning Batches
@@ -264,13 +274,14 @@ export const Hero: React.FC<HeroProps> = ({ onExploreCourses, onContactUs }) => 
                 <img
                   src="/images/assets/wagonR car + bike.jpg"
                   alt="Ghosh Motor Training School Training Fleet - Maruti WagonR and Two Wheeler"
+                  loading="eager"
+                  decoding="async"
                   style={{
                     width: "100%",
                     height: "auto",
                     display: "block",
                     objectFit: "cover",
                     aspectRatio: "4 / 3",
-                    transition: "transform 0.5s ease",
                   }}
                 />
 
@@ -278,47 +289,47 @@ export const Hero: React.FC<HeroProps> = ({ onExploreCourses, onContactUs }) => 
                 <div
                   style={{
                     position: "absolute",
-                    top: "16px",
-                    left: "16px",
+                    top: "12px",
+                    left: "12px",
                     display: "inline-flex",
                     alignItems: "center",
                     gap: "6px",
-                    background: "rgba(8, 10, 15, 0.82)",
+                    background: "rgba(8, 10, 15, 0.85)",
                     backdropFilter: "blur(12px)",
                     WebkitBackdropFilter: "blur(12px)",
                     border: "1px solid rgba(255, 229, 0, 0.4)",
                     color: "var(--accent-yellow)",
-                    padding: "6px 12px",
+                    padding: "5px 10px",
                     borderRadius: "var(--radius-full)",
                     fontFamily: "var(--font-mono)",
-                    fontSize: "0.72rem",
+                    fontSize: "0.68rem",
                     fontWeight: 700,
                     letterSpacing: "0.04em",
                   }}
                 >
-                  <ShieldCheck size={14} color="var(--accent-yellow)" />
-                  GOVT. REGISTERED FLEET
+                  <ShieldCheck size={13} color="var(--accent-yellow)" />
+                  <span>GOVT. REGISTERED FLEET</span>
                 </div>
               </div>
 
               {/* Card Footer Bar */}
               <div
                 style={{
-                  padding: "18px 22px",
+                  padding: "clamp(12px, 2.5vw, 16px) clamp(14px, 3vw, 20px)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
                   flexWrap: "wrap",
                   gap: "10px",
                   borderTop: "1px solid rgba(255, 255, 255, 0.08)",
-                  background: "rgba(10, 12, 18, 0.8)",
+                  background: "rgba(10, 12, 18, 0.85)",
                 }}
               >
                 <div>
                   <div
                     style={{
                       fontFamily: "var(--font-display)",
-                      fontSize: "0.95rem",
+                      fontSize: "clamp(0.88rem, 2.2vw, 0.95rem)",
                       fontWeight: 800,
                       color: "var(--text-white)",
                       letterSpacing: "0.02em",
@@ -329,7 +340,7 @@ export const Hero: React.FC<HeroProps> = ({ onExploreCourses, onContactUs }) => 
                   <div
                     style={{
                       fontFamily: "var(--font-body)",
-                      fontSize: "0.76rem",
+                      fontSize: "clamp(0.72rem, 1.8vw, 0.76rem)",
                       color: "var(--text-muted)",
                       marginTop: "2px",
                     }}
@@ -346,10 +357,10 @@ export const Hero: React.FC<HeroProps> = ({ onExploreCourses, onContactUs }) => 
                     background: "rgba(255, 229, 0, 0.12)",
                     border: "1px solid rgba(255, 229, 0, 0.3)",
                     color: "var(--accent-yellow)",
-                    padding: "4px 10px",
+                    padding: "4px 8px",
                     borderRadius: "6px",
                     fontFamily: "var(--font-mono)",
-                    fontSize: "0.72rem",
+                    fontSize: "0.68rem",
                     fontWeight: 700,
                   }}
                 >

@@ -48,7 +48,7 @@ export const ContactSection: React.FC = () => {
           top: "10%",
           left: "50%",
           transform: "translateX(-50%)",
-          width: "900px",
+          width: "min(900px, 90vw)",
           height: "400px",
           background: "radial-gradient(circle, rgba(255, 229, 0, 0.05) 0%, transparent 70%)",
           filter: "blur(80px)",

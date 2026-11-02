@@ -61,19 +61,20 @@ export const FirstVisitTranslationGuide: React.FC<FirstVisitTranslationGuideProp
           aria-label="Dismiss translation suggestion"
           style={{
             position: "absolute",
-            top: "14px",
-            right: "14px",
+            top: "10px",
+            right: "10px",
             background: "rgba(255, 255, 255, 0.06)",
             border: "1px solid rgba(255, 255, 255, 0.1)",
             color: "var(--text-muted)",
-            width: "26px",
-            height: "26px",
+            width: "36px",
+            height: "36px",
             borderRadius: "50%",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             cursor: "pointer",
             transition: "all 0.2s ease",
+            touchAction: "manipulation",
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.color = "var(--text-white)";
@@ -84,11 +85,11 @@ export const FirstVisitTranslationGuide: React.FC<FirstVisitTranslationGuideProp
             e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.06)";
           }}
         >
-          <X size={14} />
+          <X size={16} />
         </button>
 
         {/* Content */}
-        <div style={{ paddingRight: "20px" }}>
+        <div style={{ paddingRight: "24px" }}>
           {/* Header Title */}
           <div
             style={{
@@ -119,19 +120,21 @@ export const FirstVisitTranslationGuide: React.FC<FirstVisitTranslationGuideProp
           </p>
 
           {/* Action Row */}
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "10px" }}>
             <button
               onClick={onTranslateNow}
               className="btn btn-primary"
               style={{
-                padding: "8px 16px",
-                fontSize: "0.82rem",
+                minHeight: "42px",
+                padding: "8px 18px",
+                fontSize: "0.84rem",
                 borderRadius: "var(--radius-full)",
                 display: "inline-flex",
                 alignItems: "center",
                 gap: "6px",
                 fontWeight: 700,
                 boxShadow: "0 4px 14px rgba(255, 229, 0, 0.35)",
+                touchAction: "manipulation",
               }}
             >
               <span>Translate Now</span>
@@ -144,10 +147,14 @@ export const FirstVisitTranslationGuide: React.FC<FirstVisitTranslationGuideProp
                 background: "transparent",
                 border: "none",
                 color: "var(--text-muted)",
-                fontSize: "0.78rem",
+                fontSize: "0.8rem",
                 cursor: "pointer",
-                padding: "6px 8px",
+                padding: "8px 10px",
                 textDecoration: "underline",
+                minHeight: "42px",
+                display: "inline-flex",
+                alignItems: "center",
+                touchAction: "manipulation",
               }}
             >
               Maybe later

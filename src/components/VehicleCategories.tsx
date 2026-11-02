@@ -17,8 +17,8 @@ export const VehicleCategories: React.FC<VehicleCategoriesProps> = ({ onSelectCa
           position: "absolute",
           top: 0,
           right: 0,
-          width: "500px",
-          height: "500px",
+          width: "min(500px, 90vw)",
+          height: "min(500px, 90vw)",
           background: "radial-gradient(circle, rgba(255, 229, 0, 0.04) 0%, transparent 70%)",
           pointerEvents: "none",
         }}
@@ -56,16 +56,6 @@ export const VehicleCategories: React.FC<VehicleCategoriesProps> = ({ onSelectCa
                 transition: "all 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
                 background: "linear-gradient(180deg, rgba(20, 24, 34, 0.85) 0%, rgba(12, 14, 20, 0.95) 100%)",
               }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = "translateY(-6px)";
-                e.currentTarget.style.borderColor = "var(--border-yellow)";
-                e.currentTarget.style.boxShadow = "0 16px 40px rgba(0,0,0,0.8), 0 0 30px rgba(255, 229, 0, 0.15)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = "translateY(0)";
-                e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.09)";
-                e.currentTarget.style.boxShadow = "var(--shadow-md)";
-              }}
             >
               {/* Vehicle Visual Header */}
               <div
@@ -87,8 +77,6 @@ export const VehicleCategories: React.FC<VehicleCategoriesProps> = ({ onSelectCa
                     objectFit: "cover",
                     transition: "transform 0.5s ease",
                   }}
-                  onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.06)")}
-                  onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
                 />
                 {/* Dark Gradient Overlay for text contrast */}
                 <div
@@ -238,9 +226,11 @@ export const VehicleCategories: React.FC<VehicleCategoriesProps> = ({ onSelectCa
                     alignItems: "center",
                     justifyContent: "center",
                     gap: "8px",
-                    padding: "12px",
-                    fontSize: "0.86rem",
+                    padding: "12px 18px",
+                    minHeight: "48px",
+                    fontSize: "0.88rem",
                     cursor: "pointer",
+                    touchAction: "manipulation",
                   }}
                 >
                   <span>Explore Training & Pricing</span>

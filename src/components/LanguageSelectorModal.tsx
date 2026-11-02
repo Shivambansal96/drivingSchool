@@ -31,6 +31,18 @@ export const LanguageSelectorModal: React.FC<LanguageSelectorModalProps> = ({
   const modalRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
+  // Lock body scroll while modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
   // Focus search input when modal opens
   useEffect(() => {
     if (isOpen) {
@@ -124,7 +136,7 @@ export const LanguageSelectorModal: React.FC<LanguageSelectorModalProps> = ({
         style={{
           width: "100%",
           maxWidth: "580px",
-          maxHeight: "90vh",
+          maxHeight: "90dvh",
           display: "flex",
           flexDirection: "column",
           borderRadius: "var(--radius-xl)",
@@ -138,7 +150,7 @@ export const LanguageSelectorModal: React.FC<LanguageSelectorModalProps> = ({
         {/* Header */}
         <div
           style={{
-            padding: "clamp(16px, 3vw, 22px) clamp(16px, 3.5vw, 24px) 14px",
+            padding: "clamp(14px, 3vw, 20px) clamp(16px, 3.5vw, 24px) 14px",
             borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
             display: "flex",
             alignItems: "center",
@@ -146,7 +158,7 @@ export const LanguageSelectorModal: React.FC<LanguageSelectorModalProps> = ({
             gap: "12px",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", minWidth: 0 }}>
             <div
               style={{
                 width: "40px",
@@ -158,15 +170,16 @@ export const LanguageSelectorModal: React.FC<LanguageSelectorModalProps> = ({
                 alignItems: "center",
                 justifyContent: "center",
                 color: "var(--accent-yellow)",
+                flexShrink: 0,
               }}
             >
               <Globe size={20} />
             </div>
-            <div>
+            <div style={{ minWidth: 0 }}>
               <h3
                 id="language-modal-title"
                 style={{
-                  fontSize: "1.18rem",
+                  fontSize: "clamp(1.05rem, 2.5vw, 1.18rem)",
                   fontWeight: 800,
                   color: "var(--text-white)",
                   fontFamily: "var(--font-display)",
@@ -174,9 +187,10 @@ export const LanguageSelectorModal: React.FC<LanguageSelectorModalProps> = ({
                   display: "flex",
                   alignItems: "center",
                   gap: "8px",
+                  flexWrap: "wrap",
                 }}
               >
-                Choose Your Language
+                <span>Choose Language</span>
                 <span
                   style={{
                     fontSize: "0.72rem",
@@ -191,8 +205,8 @@ export const LanguageSelectorModal: React.FC<LanguageSelectorModalProps> = ({
                   ভাষা / भाषा
                 </span>
               </h3>
-              <p style={{ fontSize: "0.78rem", color: "var(--text-muted)", marginTop: "2px" }}>
-                Select your preferred language to translate the entire website instantly.
+              <p style={{ fontSize: "0.76rem", color: "var(--text-muted)", marginTop: "2px", lineHeight: 1.3 }}>
+                Select preferred language to translate the site.
               </p>
             </div>
           </div>
@@ -201,8 +215,10 @@ export const LanguageSelectorModal: React.FC<LanguageSelectorModalProps> = ({
             onClick={handleClose}
             aria-label="Close modal"
             style={{
-              width: "36px",
-              height: "36px",
+              width: "44px",
+              height: "44px",
+              minWidth: "44px",
+              minHeight: "44px",
               borderRadius: "8px",
               background: "rgba(255, 255, 255, 0.05)",
               border: "1px solid rgba(255, 255, 255, 0.1)",
@@ -212,6 +228,8 @@ export const LanguageSelectorModal: React.FC<LanguageSelectorModalProps> = ({
               justifyContent: "center",
               cursor: "pointer",
               transition: "all 0.2s ease",
+              flexShrink: 0,
+              touchAction: "manipulation",
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.color = "var(--text-white)";
@@ -222,7 +240,7 @@ export const LanguageSelectorModal: React.FC<LanguageSelectorModalProps> = ({
               e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.05)";
             }}
           >
-            <X size={18} />
+            <X size={20} />
           </button>
         </div>
 
@@ -367,6 +385,7 @@ export const LanguageSelectorModal: React.FC<LanguageSelectorModalProps> = ({
                     alignItems: "center",
                     justifyContent: "space-between",
                     padding: "12px 14px",
+                    minHeight: "48px",
                     borderRadius: "var(--radius-md)",
                     background: isSelected
                       ? "linear-gradient(135deg, rgba(255, 229, 0, 0.18) 0%, rgba(255, 229, 0, 0.05) 100%)"
@@ -378,6 +397,7 @@ export const LanguageSelectorModal: React.FC<LanguageSelectorModalProps> = ({
                     textAlign: "left",
                     transition: "all 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
                     position: "relative",
+                    touchAction: "manipulation",
                   }}
                   onMouseEnter={(e) => {
                     if (!isSelected) {
@@ -499,7 +519,8 @@ export const LanguageSelectorModal: React.FC<LanguageSelectorModalProps> = ({
               display: "flex",
               alignItems: "center",
               gap: "6px",
-              padding: "7px 14px",
+              padding: "8px 16px",
+              minHeight: "42px",
               borderRadius: "var(--radius-md)",
               background: currentLanguage === "en" ? "rgba(255, 255, 255, 0.05)" : "rgba(255, 229, 0, 0.1)",
               border: currentLanguage === "en" ? "1px solid rgba(255, 255, 255, 0.1)" : "1px solid rgba(255, 229, 0, 0.3)",
@@ -509,6 +530,7 @@ export const LanguageSelectorModal: React.FC<LanguageSelectorModalProps> = ({
               fontFamily: "var(--font-display)",
               cursor: "pointer",
               transition: "all 0.2s ease",
+              touchAction: "manipulation",
             }}
           >
             <RotateCcw size={13} />

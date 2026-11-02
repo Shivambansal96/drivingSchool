@@ -56,7 +56,7 @@ export const WhyChooseUs: React.FC = () => {
           top: "40%",
           left: "50%",
           transform: "translateX(-50%)",
-          width: "800px",
+          width: "min(800px, 90vw)",
           height: "400px",
           background: "radial-gradient(circle, rgba(255, 229, 0, 0.04) 0%, transparent 70%)",
           filter: "blur(70px)",

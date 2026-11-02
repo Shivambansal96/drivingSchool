@@ -65,7 +65,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
             top: "12%",
             left: "50%",
             transform: "translateX(-50%)",
-            width: "800px",
+            width: "min(800px, 90vw)",
             height: "400px",
             background: "radial-gradient(circle, rgba(255, 229, 0, 0.05) 0%, transparent 70%)",
             filter: "blur(70px)",
@@ -89,15 +89,15 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
             style={{
               display: "grid",
               gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 250px), 1fr))",
-              gap: "20px",
-              marginBottom: "50px",
+              gap: "clamp(14px, 2.5vw, 20px)",
+              marginBottom: "clamp(36px, 6vw, 50px)",
             }}
           >
             {/* 1. Direct Phone Call */}
             <div
               className="glass-card"
               style={{
-                padding: "24px",
+                padding: "clamp(18px, 3.5vw, 24px)",
                 borderRadius: "var(--radius-lg)",
                 background: "linear-gradient(180deg, rgba(22, 26, 38, 0.9) 0%, rgba(12, 14, 22, 0.98) 100%)",
                 border: "1px solid rgba(255, 255, 255, 0.09)",
@@ -142,19 +142,21 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
                 </div>
               </div>
 
-              <div style={{ display: "flex", gap: "8px" }}>
+              <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
                 <a
                   href={`tel:${contact.phoneDial}`}
                   className="btn btn-secondary"
                   style={{
                     flex: 1,
-                    padding: "8px 12px",
-                    fontSize: "0.82rem",
+                    minHeight: "44px",
+                    padding: "10px 14px",
+                    fontSize: "0.84rem",
                     display: "inline-flex",
                     alignItems: "center",
                     justifyContent: "center",
                     gap: "6px",
                     textDecoration: "none",
+                    touchAction: "manipulation",
                   }}
                 >
                   <Phone size={14} />
@@ -164,17 +166,24 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
                   type="button"
                   onClick={handleCopyPhone}
                   style={{
-                    padding: "8px 12px",
+                    width: "44px",
+                    height: "44px",
+                    minWidth: "44px",
+                    minHeight: "44px",
                     background: "rgba(255, 255, 255, 0.05)",
                     border: "1px solid rgba(255, 255, 255, 0.12)",
                     borderRadius: "var(--radius-sm)",
                     color: copiedPhone ? "var(--accent-green)" : "var(--text-muted)",
-                    fontSize: "0.78rem",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                     cursor: "pointer",
+                    touchAction: "manipulation",
                   }}
                   title="Copy Phone Number"
+                  aria-label="Copy Phone Number"
                 >
-                  {copiedPhone ? <CheckCircle2 size={14} /> : <Copy size={14} />}
+                  {copiedPhone ? <CheckCircle2 size={16} /> : <Copy size={16} />}
                 </button>
               </div>
             </div>
@@ -183,7 +192,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
             <div
               className="glass-card"
               style={{
-                padding: "24px",
+                padding: "clamp(18px, 3.5vw, 24px)",
                 borderRadius: "var(--radius-lg)",
                 background: "linear-gradient(180deg, rgba(22, 26, 38, 0.9) 0%, rgba(12, 14, 22, 0.98) 100%)",
                 border: "1.5px solid rgba(37, 211, 102, 0.35)",
@@ -235,13 +244,15 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
                 className="btn btn-whatsapp"
                 style={{
                   width: "100%",
-                  padding: "9px 14px",
-                  fontSize: "0.82rem",
+                  minHeight: "44px",
+                  padding: "10px 14px",
+                  fontSize: "0.84rem",
                   display: "inline-flex",
                   alignItems: "center",
                   justifyContent: "center",
                   gap: "6px",
                   textDecoration: "none",
+                  touchAction: "manipulation",
                 }}
               >
                 <MessageSquare size={14} />
@@ -253,7 +264,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
             <div
               className="glass-card"
               style={{
-                padding: "24px",
+                padding: "clamp(18px, 3.5vw, 24px)",
                 borderRadius: "var(--radius-lg)",
                 background: "linear-gradient(180deg, rgba(22, 26, 38, 0.9) 0%, rgba(12, 14, 22, 0.98) 100%)",
                 border: "1px solid rgba(255, 255, 255, 0.09)",
@@ -292,12 +303,12 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
                 </div>
                 <div
                   style={{
-                    fontSize: "0.95rem",
+                    fontSize: "0.92rem",
                     fontWeight: 700,
                     color: "#ffffff",
                     marginTop: "4px",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
+                    overflowWrap: "break-word",
+                    wordBreak: "break-all",
                   }}
                 >
                   {contact.email}
@@ -312,13 +323,15 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
                 className="btn btn-secondary"
                 style={{
                   width: "100%",
-                  padding: "9px 14px",
-                  fontSize: "0.82rem",
+                  minHeight: "44px",
+                  padding: "10px 14px",
+                  fontSize: "0.84rem",
                   display: "inline-flex",
                   alignItems: "center",
                   justifyContent: "center",
                   gap: "6px",
                   textDecoration: "none",
+                  touchAction: "manipulation",
                 }}
               >
                 <Mail size={14} />
@@ -330,7 +343,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
             <div
               className="glass-card"
               style={{
-                padding: "24px",
+                padding: "clamp(18px, 3.5vw, 24px)",
                 borderRadius: "var(--radius-lg)",
                 background: "linear-gradient(180deg, rgba(22, 26, 38, 0.9) 0%, rgba(12, 14, 22, 0.98) 100%)",
                 border: "1px solid rgba(255, 255, 255, 0.09)",
@@ -382,13 +395,15 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
                 className="btn btn-secondary"
                 style={{
                   width: "100%",
-                  padding: "9px 14px",
-                  fontSize: "0.82rem",
+                  minHeight: "44px",
+                  padding: "10px 14px",
+                  fontSize: "0.84rem",
                   display: "inline-flex",
                   alignItems: "center",
                   justifyContent: "center",
                   gap: "6px",
                   textDecoration: "none",
+                  touchAction: "manipulation",
                 }}
               >
                 <Navigation size={14} />
@@ -472,12 +487,13 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
                       onChange={(e) => setFullName(e.target.value)}
                       style={{
                         width: "100%",
+                        minHeight: "46px",
                         padding: "12px 14px",
                         borderRadius: "var(--radius-sm)",
                         background: "rgba(255, 255, 255, 0.04)",
                         border: "1px solid rgba(255, 255, 255, 0.12)",
                         color: "#ffffff",
-                        fontSize: "0.9rem",
+                        fontSize: "1rem",
                         fontFamily: "inherit",
                         boxSizing: "border-box",
                       }}
@@ -504,18 +520,19 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
                       onChange={(e) => setSelectedCourse(e.target.value)}
                       style={{
                         width: "100%",
+                        minHeight: "46px",
                         padding: "12px 14px",
                         borderRadius: "var(--radius-sm)",
                         background: "rgba(16, 20, 30, 0.95)",
                         border: "1px solid rgba(255, 229, 0, 0.4)",
                         color: "#ffffff",
-                        fontSize: "0.9rem",
+                        fontSize: "1rem",
                         fontFamily: "inherit",
                         boxSizing: "border-box",
                         cursor: "pointer",
                       }}
                     >
-                      <option value="4 Wheelers - Personal Training (₹11,000)">4 Wheelers (WagonR) - Personal 1-on-1 (₹11,000)</option>
+                      <option value="4 Wheelers - Personal Training (₹11,000, 10 Days)">4 Wheelers (WagonR) - Personal 1-on-1 (₹11,000, 10 Days)</option>
                       <option value="4 Wheelers - Semi-Personal (₹5,500)">4 Wheelers (WagonR) - Semi-Personal 1:2 (₹5,500)</option>
                       <option value="4 Wheelers - Group Training (₹3,000)">4 Wheelers (WagonR) - Group 1:3-4 (₹3,000)</option>
                       <option value="2 Wheelers - Practical Training (₹3,000)">2 Wheelers (Scooty/Bike) - Foundation (₹3,000)</option>
@@ -544,12 +561,13 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
                       onChange={(e) => setSelectedSlot(e.target.value)}
                       style={{
                         width: "100%",
+                        minHeight: "46px",
                         padding: "12px 14px",
                         borderRadius: "var(--radius-sm)",
                         background: "rgba(16, 20, 30, 0.95)",
                         border: "1px solid rgba(255, 255, 255, 0.15)",
                         color: "#ffffff",
-                        fontSize: "0.9rem",
+                        fontSize: "1rem",
                         fontFamily: "inherit",
                         boxSizing: "border-box",
                         cursor: "pointer",
@@ -588,7 +606,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
                         background: "rgba(255, 255, 255, 0.04)",
                         border: "1px solid rgba(255, 255, 255, 0.12)",
                         color: "#ffffff",
-                        fontSize: "0.9rem",
+                        fontSize: "1rem",
                         fontFamily: "inherit",
                         boxSizing: "border-box",
                         resize: "vertical",
@@ -602,6 +620,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
                     className="btn btn-whatsapp"
                     style={{
                       width: "100%",
+                      minHeight: "48px",
                       padding: "14px",
                       fontSize: "0.95rem",
                       borderRadius: "var(--radius-full)",
@@ -611,6 +630,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
                       gap: "8px",
                       cursor: "pointer",
                       marginTop: "10px",
+                      touchAction: "manipulation",
                     }}
                   >
                     <MessageSquare size={18} />
@@ -629,7 +649,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
                   borderRadius: "var(--radius-xl)",
                   overflow: "hidden",
                   border: "1.5px solid rgba(255, 255, 255, 0.12)",
-                  height: "320px",
+                  height: "clamp(260px, 45vw, 360px)",
                   position: "relative",
                   boxShadow: "0 15px 40px rgba(0,0,0,0.8)",
                 }}
@@ -653,6 +673,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
                     left: "14px",
                     background: "rgba(8, 9, 12, 0.9)",
                     backdropFilter: "blur(10px)",
+                    WebkitBackdropFilter: "blur(10px)",
                     padding: "6px 14px",
                     borderRadius: "var(--radius-sm)",
                     border: "1px solid rgba(255, 229, 0, 0.4)",
@@ -670,7 +691,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
               <div
                 className="glass-card"
                 style={{
-                  padding: "clamp(20px, 3.5vw, 28px)",
+                  padding: "clamp(18px, 3.5vw, 28px)",
                   borderRadius: "var(--radius-lg)",
                   background: "linear-gradient(180deg, rgba(20, 24, 34, 0.85) 0%, rgba(12, 14, 20, 0.95) 100%)",
                   border: "1px solid rgba(255, 255, 255, 0.08)",
@@ -680,8 +701,8 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
                 }}
               >
                 {/* Physical Address */}
-                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "14px" }}>
-                  <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "14px", flexWrap: "wrap" }}>
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: "12px", minWidth: "min(100%, 260px)", flex: "1 1 240px" }}>
                     <div
                       style={{
                         width: "40px",
@@ -709,7 +730,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
                     </div>
                   </div>
 
-                  <div style={{ display: "flex", gap: "6px" }}>
+                  <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
                     <a
                       href={contact.googleMapsLink}
                       target="_blank"
@@ -718,17 +739,19 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
                         background: "rgba(255, 229, 0, 0.12)",
                         border: "1px solid rgba(255, 229, 0, 0.35)",
                         color: "var(--accent-yellow)",
-                        padding: "8px 12px",
+                        minHeight: "42px",
+                        padding: "8px 14px",
                         borderRadius: "6px",
-                        fontSize: "0.76rem",
+                        fontSize: "0.8rem",
                         display: "flex",
                         alignItems: "center",
-                        gap: "4px",
+                        gap: "6px",
                         textDecoration: "none",
                         fontWeight: 700,
+                        touchAction: "manipulation",
                       }}
                     >
-                      <Navigation size={13} />
+                      <Navigation size={14} />
                       <span>Directions</span>
                     </a>
 
@@ -736,17 +759,24 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
                       type="button"
                       onClick={handleCopyAddress}
                       style={{
+                        width: "42px",
+                        height: "42px",
+                        minWidth: "42px",
+                        minHeight: "42px",
                         background: "rgba(255, 255, 255, 0.05)",
                         border: "1px solid rgba(255, 255, 255, 0.1)",
                         color: copiedAddress ? "var(--accent-green)" : "var(--text-muted)",
-                        padding: "8px 12px",
                         borderRadius: "6px",
-                        fontSize: "0.76rem",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
                         cursor: "pointer",
+                        touchAction: "manipulation",
                       }}
                       title="Copy Address"
+                      aria-label="Copy Address"
                     >
-                      {copiedAddress ? <CheckCircle2 size={13} /> : <Copy size={13} />}
+                      {copiedAddress ? <CheckCircle2 size={16} /> : <Copy size={16} />}
                     </button>
                   </div>
                 </div>
@@ -815,8 +845,8 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 180px), 1fr))",
-                gap: "16px",
+                gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 140px), 1fr))",
+                gap: "clamp(12px, 2vw, 16px)",
               }}
             >
               {socialLinks.map((platform) => (
@@ -824,7 +854,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
                   key={platform.id}
                   className="glass-card"
                   style={{
-                    padding: "18px",
+                    padding: "clamp(14px, 2.5vw, 18px)",
                     borderRadius: "var(--radius-md)",
                     background: platform.active
                       ? "linear-gradient(135deg, rgba(255, 229, 0, 0.12) 0%, rgba(20, 24, 34, 0.8) 100%)"
@@ -839,8 +869,8 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
                     opacity: platform.active ? 1 : 0.65,
                   }}
                 >
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <div style={{ fontWeight: 800, color: "#ffffff", fontSize: "0.95rem" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px" }}>
+                    <div style={{ fontWeight: 800, color: "#ffffff", fontSize: "0.92rem" }}>
                       {platform.name}
                     </div>
                     {platform.active ? (
@@ -852,6 +882,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
                           background: "rgba(255, 229, 0, 0.15)",
                           padding: "2px 6px",
                           borderRadius: "4px",
+                          flexShrink: 0,
                         }}
                       >
                         ACTIVE
@@ -862,6 +893,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
                           fontSize: "0.68rem",
                           color: "var(--text-dim)",
                           fontFamily: "var(--font-mono)",
+                          flexShrink: 0,
                         }}
                       >
                         COMING SOON
@@ -876,13 +908,15 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
                       rel="noopener noreferrer"
                       className="btn btn-secondary"
                       style={{
-                        padding: "7px 12px",
+                        padding: "8px 12px",
+                        minHeight: "40px",
                         fontSize: "0.78rem",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
                         gap: "6px",
                         textDecoration: "none",
+                        touchAction: "manipulation",
                       }}
                     >
                       <span>Visit Channel</span>

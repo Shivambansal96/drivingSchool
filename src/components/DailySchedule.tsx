@@ -33,7 +33,7 @@ export const DailySchedule: React.FC = () => {
               key={slot.id}
               className="glass-card"
               style={{
-                padding: "clamp(24px, 3.5vw, 32px) clamp(18px, 3vw, 26px)",
+                padding: "clamp(22px, 3.5vw, 30px) clamp(16px, 3vw, 24px)",
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "space-between",
@@ -42,16 +42,6 @@ export const DailySchedule: React.FC = () => {
                 background: "linear-gradient(180deg, rgba(20, 24, 34, 0.85) 0%, rgba(12, 14, 20, 0.95) 100%)",
                 position: "relative",
                 transition: "all 0.3s ease",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = "translateY(-4px)";
-                e.currentTarget.style.borderColor = "var(--border-yellow)";
-                e.currentTarget.style.boxShadow = "0 12px 30px rgba(0,0,0,0.7), 0 0 25px rgba(255, 229, 0, 0.1)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = "translateY(0)";
-                e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.08)";
-                e.currentTarget.style.boxShadow = "var(--shadow-md)";
               }}
             >
               <div>
@@ -217,9 +207,11 @@ export const DailySchedule: React.FC = () => {
                   alignItems: "center",
                   justifyContent: "center",
                   gap: "6px",
-                  padding: "10px",
-                  fontSize: "0.82rem",
+                  padding: "11px 16px",
+                  minHeight: "44px",
+                  fontSize: "0.84rem",
                   textDecoration: "none",
+                  touchAction: "manipulation",
                 }}
               >
                 <span>Reserve Morning Slot</span>
@@ -234,7 +226,7 @@ export const DailySchedule: React.FC = () => {
           style={{
             maxWidth: "760px",
             margin: "0 auto",
-            padding: "12px 20px",
+            padding: "clamp(12px, 2.5vw, 16px) clamp(14px, 3vw, 20px)",
             borderRadius: "var(--radius-md)",
             background: "rgba(239, 68, 68, 0.08)",
             border: "1px solid rgba(239, 68, 68, 0.25)",
@@ -245,7 +237,7 @@ export const DailySchedule: React.FC = () => {
             gap: "10px",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
             <span
               style={{
                 fontFamily: "var(--font-mono)",
@@ -260,7 +252,7 @@ export const DailySchedule: React.FC = () => {
             >
               SUNDAY: CLOSED
             </span>
-            <span style={{ fontSize: "0.84rem", color: "var(--text-muted)" }}>
+            <span style={{ fontSize: "0.82rem", color: "var(--text-muted)" }}>
               Fleet maintenance, dual-control brake servicing & instructor rest.
             </span>
           </div>
@@ -270,7 +262,7 @@ export const DailySchedule: React.FC = () => {
               display: "inline-flex",
               alignItems: "center",
               gap: "6px",
-              fontSize: "0.78rem",
+              fontSize: "0.76rem",
               color: "var(--text-dim)",
               fontFamily: "var(--font-mono)",
             }}

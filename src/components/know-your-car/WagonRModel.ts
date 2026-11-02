@@ -18,11 +18,18 @@ export interface WagonRCarModel {
     group: THREE.Group;
     steeringWheel: THREE.Group;
     steeringColumn: THREE.Group;
+    steeringGuideLines: THREE.LineSegments;
     clutchPedal: THREE.Group;
     brakePedal: THREE.Group;
     accelPedal: THREE.Group;
     gearLever: THREE.Group;
     handbrake: THREE.Group;
+    hazardButton: THREE.Mesh;
+    ignitionSwitch: THREE.Group;
+    turnSignalL: THREE.Mesh;
+    turnSignalR: THREE.Mesh;
+    tempWarningIcon: THREE.Mesh;
+    speedometerNeedle: THREE.Mesh;
   };
   engineBay: {
     group: THREE.Group;
@@ -53,18 +60,25 @@ export interface WagonRCarModel {
   };
   wheels: THREE.Group[];
   updateAnimation: (options: {
-    bonnetAngle: number; // 0 to ~0.92 rad
-    driverDoorAngle?: number; // 0 to ~1.05 rad
-    wheelExplodeOffset: number; // 0 to 1
-    pedals: { clutch: boolean; brake: boolean; accel: boolean };
-    steeringAngle?: number; // radians (-Math.PI to +Math.PI)
+    bonnetAngle?: number;
+    driverDoorAngle?: number;
+    wheelExplodeOffset?: number;
+    steeringExplodeOffset?: number;
+    steeringAngle?: number;
     gearPosition?: GearPosition;
+    pedals: { clutch: boolean; brake: boolean; accel: boolean };
+    handbrakeEngaged?: boolean;
     lights: {
       headlights: boolean;
       leftIndicator: boolean;
       rightIndicator: boolean;
       hazard: boolean;
       brakeLights: boolean;
+    };
+    dashboard?: {
+      tempWarning?: boolean;
+      hazard?: boolean;
+      speed?: number;
     };
     time: number;
     delta: number;
@@ -122,6 +136,7 @@ export function createWagonRModel(): WagonRCarModel {
   const glowAmber = new THREE.MeshBasicMaterial({ color: 0xff9900 });
   const glowRed = new THREE.MeshBasicMaterial({ color: 0xff1e28 });
   const glowOff = new THREE.MeshBasicMaterial({ color: 0x2b2d35 });
+  const glowCyan = new THREE.MeshBasicMaterial({ color: 0x00e5ff });
 
   // Map to store highlightable components
   const highlightMeshes: Record<string, THREE.Mesh[]> = {};
@@ -174,6 +189,7 @@ export function createWagonRModel(): WagonRCarModel {
   windshield.rotation.x = -0.52;
   bodyGroup.add(windshield);
   registerHighlight("windshield-ext", windshield);
+  registerHighlight("high-windscreen", windshield);
 
   // Rear Tailgate Glass (Upright characteristic of WagonR)
   const rearGlassGeo = new THREE.PlaneGeometry(1.36, 0.55);
@@ -325,14 +341,13 @@ export function createWagonRModel(): WagonRCarModel {
   bonnetPivot.add(propRod);
 
   // =========================================================================
-  // 4. DETAILED ENGINE BAY (Scene 02: WHAT'S UNDER THE HOOD?)
+  // 4. DETAILED ENGINE BAY
   // =========================================================================
   const engineBayGroup = new THREE.Group();
   engineBayGroup.name = "WagonR_EngineBay";
   engineBayGroup.position.set(0, 0.48, 1.25);
   root.add(engineBayGroup);
 
-  // Black metal inner bay floor & bulkhead
   const bayFloorGeo = new THREE.BoxGeometry(1.5, 0.08, 1.05);
   const bayFloor = new THREE.Mesh(bayFloorGeo, interiorDarkMaterial);
   bayFloor.position.set(0, -0.05, 0);
@@ -369,7 +384,6 @@ export function createWagonRModel(): WagonRCarModel {
   batteryGroup.add(battBody);
   registerHighlight("car-battery", battBody);
 
-  // Red + and Black - terminals
   const termGeo = new THREE.CylinderGeometry(0.02, 0.02, 0.03, 8);
   const redMat = new THREE.MeshBasicMaterial({ color: 0xee2222 });
   const blackMat = new THREE.MeshBasicMaterial({ color: 0x111111 });
@@ -380,7 +394,7 @@ export function createWagonRModel(): WagonRCarModel {
   batteryGroup.add(posTerm, negTerm);
   engineBayGroup.add(batteryGroup);
 
-  // Coolant Expansion Reservoir (Translucent Neon Green)
+  // Coolant Expansion Reservoir
   const coolantGeo = new THREE.CylinderGeometry(0.12, 0.11, 0.26, 16);
   const coolantMat = new THREE.MeshStandardMaterial({
     color: 0x44ff88,
@@ -428,7 +442,7 @@ export function createWagonRModel(): WagonRCarModel {
   engineBayGroup.add(radiatorGroup);
 
   // =========================================================================
-  // 5. EXPLODED FRONT-RIGHT WHEEL & BRAKING (Scene 03)
+  // 5. EXPLODED WHEEL ASSEMBLY
   // =========================================================================
   const wheelExplodedGroup = new THREE.Group();
   wheelExplodedGroup.name = "WagonR_ExplodedWheel";
@@ -438,7 +452,6 @@ export function createWagonRModel(): WagonRCarModel {
   const wheelY = 0.38;
   const wheelZ = 1.15;
 
-  // Strut & Coil Spring
   const strutGroup = new THREE.Group();
   strutGroup.position.set(baseWheelX - 0.12, wheelY + 0.18, wheelZ);
   const shock = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.45), chromeMaterial);
@@ -454,7 +467,6 @@ export function createWagonRModel(): WagonRCarModel {
   wheelExplodedGroup.add(strutGroup);
   registerHighlight("suspension-strut", spring);
 
-  // Brake Caliper
   const caliperGroup = new THREE.Group();
   caliperGroup.position.set(baseWheelX + 0.02, wheelY + 0.08, wheelZ);
   const caliperMat = new THREE.MeshStandardMaterial({ color: 0xd63031, metalness: 0.85, roughness: 0.3 });
@@ -463,7 +475,6 @@ export function createWagonRModel(): WagonRCarModel {
   wheelExplodedGroup.add(caliperGroup);
   registerHighlight("brake-caliper", caliper);
 
-  // Ventilated Brake Disc
   const discGroup = new THREE.Group();
   discGroup.position.set(baseWheelX + 0.08, wheelY, wheelZ);
   const discGeo = new THREE.CylinderGeometry(0.22, 0.22, 0.02, 24);
@@ -474,7 +485,6 @@ export function createWagonRModel(): WagonRCarModel {
   wheelExplodedGroup.add(discGroup);
   registerHighlight("brake-disc", discMesh);
 
-  // Wheel Rim with 4 Lug Nuts
   const rimGroup = new THREE.Group();
   rimGroup.position.set(baseWheelX + 0.12, wheelY, wheelZ);
   const rimGeo = new THREE.CylinderGeometry(0.26, 0.26, 0.18, 24);
@@ -493,7 +503,6 @@ export function createWagonRModel(): WagonRCarModel {
   wheelExplodedGroup.add(rimGroup);
   registerHighlight("alloy-rim", rimMesh);
 
-  // Tubeless Radial Tyre
   const tyreGroup = new THREE.Group();
   tyreGroup.position.set(baseWheelX + 0.14, wheelY, wheelZ);
   const tyreGeo = new THREE.CylinderGeometry(0.32, 0.32, 0.22, 24);
@@ -506,7 +515,6 @@ export function createWagonRModel(): WagonRCarModel {
   registerHighlight("radial-tyre", tyreMesh);
   registerHighlight("tyres-ext", tyreMesh);
 
-  // Laser Guide Lines
   const guideLineMat = new THREE.LineDashedMaterial({
     color: 0xffe500,
     dashSize: 0.05,
@@ -522,7 +530,6 @@ export function createWagonRModel(): WagonRCarModel {
   guideLines.computeLineDistances();
   wheelExplodedGroup.add(guideLines);
 
-  // Other 3 static wheels
   const wheels: THREE.Group[] = [wheelExplodedGroup];
   const otherPositions = [
     { x: -baseWheelX, y: wheelY, z: wheelZ },  // Front Left
@@ -555,24 +562,80 @@ export function createWagonRModel(): WagonRCarModel {
   const dashMesh = new THREE.Mesh(dashGeo, interiorDarkMaterial);
   dashMesh.position.set(0, 0.32, 0.52);
   cockpitGroup.add(dashMesh);
+  registerHighlight("rhd-cockpit", dashMesh);
 
-  // RHD Instrument Binnacle (Placed at +X: 0.35m directly ahead of driver)
+  // AC Louver Vents
+  const ventMat = new THREE.MeshStandardMaterial({ color: 0x111318, roughness: 0.6 });
+  const ventCenterL = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.06, 0.02), ventMat);
+  ventCenterL.position.set(-0.08, 0.44, 0.72);
+  const ventCenterR = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.06, 0.02), ventMat);
+  ventCenterR.position.set(0.08, 0.44, 0.72);
+  const ventDriverR = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.06, 0.02), ventMat);
+  ventDriverR.position.set(0.62, 0.44, 0.65);
+  cockpitGroup.add(ventCenterL, ventCenterR, ventDriverR);
+
+  // RHD Instrument Binnacle (Ahead of driver at +X: 0.35m)
   const binnacleGeo = new THREE.BoxGeometry(0.44, 0.14, 0.28);
   const binnacle = new THREE.Mesh(binnacleGeo, interiorDarkMaterial);
   binnacle.position.set(0.35, 0.54, 0.48);
   cockpitGroup.add(binnacle);
 
-  // Illuminated Speedometer & Gauges
+  // Illuminated Speedometer Dial & Digital Fuel Bar
   const clusterGeo = new THREE.PlaneGeometry(0.38, 0.1);
-  const clusterMat = new THREE.MeshBasicMaterial({ color: 0x00e5ff });
-  const cluster = new THREE.Mesh(clusterGeo, clusterMat);
+  const cluster = new THREE.Mesh(clusterGeo, glowCyan);
   cluster.position.set(0.35, 0.52, 0.35);
   cluster.rotation.x = -0.3;
   cockpitGroup.add(cluster);
+  registerHighlight("speedometer", cluster);
   registerHighlight("instrument-cluster", cluster);
 
-  // RHD Steering Column & Articulated Wheel Assembly at +X: 0.35m
+  // Speedometer Needle
+  const needleGeo = new THREE.BoxGeometry(0.006, 0.06, 0.002);
+  needleGeo.translate(0, 0.03, 0);
+  const needleMat = new THREE.MeshBasicMaterial({ color: 0xff3b30 });
+  const speedometerNeedle = new THREE.Mesh(needleGeo, needleMat);
+  speedometerNeedle.position.set(0.35, 0.52, 0.355);
+  speedometerNeedle.rotation.x = -0.3;
+  cockpitGroup.add(speedometerNeedle);
+
+  // Fuel Gauge Segment Mesh
+  const fuelGeo = new THREE.PlaneGeometry(0.06, 0.02);
+  const fuelMesh = new THREE.Mesh(fuelGeo, glowAmber);
+  fuelMesh.position.set(0.44, 0.52, 0.352);
+  fuelMesh.rotation.x = -0.3;
+  cockpitGroup.add(fuelMesh);
+  registerHighlight("fuel-indicator", fuelMesh);
+
+  // Engine Temperature Red Warning Icon
+  const tempWarnGeo = new THREE.PlaneGeometry(0.025, 0.025);
+  const tempWarningIcon = new THREE.Mesh(tempWarnGeo, glowOff);
+  tempWarningIcon.position.set(0.26, 0.52, 0.352);
+  tempWarningIcon.rotation.x = -0.3;
+  cockpitGroup.add(tempWarningIcon);
+  registerHighlight("temp-warning", tempWarningIcon);
+
+  // Turn Signal Dashboard Indicators (Left & Right green/amber arrows)
+  const turnArrowGeo = new THREE.PlaneGeometry(0.02, 0.02);
+  const turnSignalL = new THREE.Mesh(turnArrowGeo, glowOff);
+  turnSignalL.position.set(0.31, 0.55, 0.352);
+  turnSignalL.rotation.x = -0.3;
+
+  const turnSignalR = new THREE.Mesh(turnArrowGeo, glowOff);
+  turnSignalR.position.set(0.39, 0.55, 0.352);
+  turnSignalR.rotation.x = -0.3;
+  cockpitGroup.add(turnSignalL, turnSignalR);
+  registerHighlight("turn-indicators-dash", turnSignalR);
+
+  // Center Hazard Flasher Push Button (Red Triangle)
+  const hazardGeo = new THREE.BoxGeometry(0.05, 0.05, 0.02);
+  const hazardButton = new THREE.Mesh(hazardGeo, glowRed);
+  hazardButton.position.set(0, 0.44, 0.74);
+  cockpitGroup.add(hazardButton);
+  registerHighlight("hazard-switch", hazardButton);
+
+  // RHD Steering Column at +X: 0.35m
   const steeringColumn = new THREE.Group();
+  steeringColumn.name = "SteeringColumn";
   steeringColumn.position.set(0.35, 0.48, 0.38);
 
   const columnGeo = new THREE.CylinderGeometry(0.035, 0.035, 0.28);
@@ -580,20 +643,55 @@ export function createWagonRModel(): WagonRCarModel {
   const columnMesh = new THREE.Mesh(columnGeo, trimMaterial);
   steeringColumn.add(columnMesh);
 
-  // Articulated Steering Wheel Group (Rotates around its axis)
+  // Ignition Key Cylinder on Right Side of Steering Column
+  const ignitionGroup = new THREE.Group();
+  ignitionGroup.position.set(0.08, 0.02, -0.06);
+  const ignBarrel = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.03, 16), chromeMaterial);
+  ignBarrel.rotateZ(Math.PI / 2);
+  const ignSlot = new THREE.Mesh(new THREE.BoxGeometry(0.004, 0.016, 0.02), trimMaterial);
+  ignSlot.position.x = 0.016;
+  ignitionGroup.add(ignBarrel, ignSlot);
+  steeringColumn.add(ignitionGroup);
+  registerHighlight("ignition-switch", ignBarrel);
+
+  // Right-Hand Multi-Function Stalk (Headlights & Turn Signals)
+  const stalkGeo = new THREE.CylinderGeometry(0.008, 0.008, 0.14);
+  const indStalk = new THREE.Mesh(stalkGeo, trimMaterial);
+  indStalk.position.set(0.14, 0.05, -0.05);
+  indStalk.rotation.z = Math.PI / 3;
+  steeringColumn.add(indStalk);
+  registerHighlight("lighting-stalk", indStalk);
+  registerHighlight("indicator-stalk", indStalk);
+
+  // Left-Hand Wiper Stalk
+  const wiperStalk = new THREE.Mesh(stalkGeo, trimMaterial);
+  wiperStalk.position.set(-0.14, 0.05, -0.05);
+  wiperStalk.rotation.z = -Math.PI / 3;
+  steeringColumn.add(wiperStalk);
+  registerHighlight("wiper-stalk", wiperStalk);
+
+  // =========================================================================
+  // CHAPTER 2: ARTICULATED & EXPLODED STEERING WHEEL ASSEMBLY
+  // Moves forward along the steering rake axis (Y & -Z) during Chapter 2
+  // =========================================================================
   const steeringWheel = new THREE.Group();
+  steeringWheel.name = "WagonR_SteeringWheel_ExplodedGroup";
   steeringWheel.position.set(0, 0.08, -0.12);
   steeringWheel.rotation.x = 0.45;
 
+  // 3-Spoke Urethane Rim
   const wheelRim = new THREE.Mesh(new THREE.TorusGeometry(0.18, 0.022, 12, 28), trimMaterial);
+  wheelRim.castShadow = true;
+
+  // Horn Boss & SRS Airbag Cushion Pad
   const boss = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.03, 16), trimMaterial);
   boss.rotateX(Math.PI / 2);
 
-  // Suzuki Chrome Emblem on Center Horn Boss
+  // Suzuki Chrome Emblem
   const hornEmblem = new THREE.Mesh(new THREE.TorusGeometry(0.02, 0.005, 8, 12), chromeMaterial);
   hornEmblem.position.set(0, 0, 0.02);
 
-  // 3 Spokes (Left, Right, Bottom)
+  // 3 Spokes
   const spokeGeo = new THREE.BoxGeometry(0.12, 0.025, 0.02);
   const spokeL = new THREE.Mesh(spokeGeo, trimMaterial);
   spokeL.position.set(-0.08, 0, 0);
@@ -606,21 +704,24 @@ export function createWagonRModel(): WagonRCarModel {
   steeringColumn.add(steeringWheel);
   cockpitGroup.add(steeringColumn);
   registerHighlight("steering-wheel", wheelRim);
+  registerHighlight("airbag-horn", boss);
   registerHighlight("airbags", boss);
 
-  // Right-Hand Multi-Function Stalk (Headlights & Turn Signals in Indian RHD)
-  const stalkGeo = new THREE.CylinderGeometry(0.008, 0.008, 0.14);
-  const indStalk = new THREE.Mesh(stalkGeo, trimMaterial);
-  indStalk.position.set(0.14, 0.05, -0.05);
-  indStalk.rotation.z = Math.PI / 3;
-  steeringColumn.add(indStalk);
-  registerHighlight("indicator-stalk", indStalk);
-
-  // Left-Hand Wiper Stalk
-  const wiperStalk = new THREE.Mesh(stalkGeo, trimMaterial);
-  wiperStalk.position.set(-0.14, 0.05, -0.05);
-  wiperStalk.rotation.z = -Math.PI / 3;
-  steeringColumn.add(wiperStalk);
+  // Steering Exploded Guide Line
+  const steeringGuideLineMat = new THREE.LineDashedMaterial({
+    color: 0xffe500,
+    dashSize: 0.04,
+    gapSize: 0.02,
+    transparent: true,
+    opacity: 0,
+  });
+  const steeringGuideLineGeo = new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3(0, 0, 0),
+    new THREE.Vector3(0, 0.22, -0.45),
+  ]);
+  const steeringGuideLines = new THREE.LineSegments(steeringGuideLineGeo, steeringGuideLineMat);
+  steeringGuideLines.computeLineDistances();
+  steeringColumn.add(steeringGuideLines);
 
   // Center Day/Night IRVM
   const irvmGeo = new THREE.BoxGeometry(0.18, 0.06, 0.02);
@@ -636,42 +737,61 @@ export function createWagonRModel(): WagonRCarModel {
   consoleMesh.position.set(0, 0.12, 0.15);
   cockpitGroup.add(consoleMesh);
 
-  // 5-Speed Manual Gear Shift Lever (Pivoting H-Pattern Stick)
+  // =========================================================================
+  // CHAPTER 3: 5-SPEED MANUAL GEAR SHIFTER
+  // =========================================================================
   const gearGroup = new THREE.Group();
+  gearGroup.name = "WagonR_GearShifter";
   gearGroup.position.set(0, 0.22, 0.32);
+
   const boot = new THREE.Mesh(new THREE.ConeGeometry(0.06, 0.08, 12), trimMaterial);
   const stick = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.18), chromeMaterial);
   stick.position.y = 0.09;
   const knob = new THREE.Mesh(new THREE.SphereGeometry(0.032, 12, 12), trimMaterial);
   knob.position.y = 0.18;
-  gearGroup.add(boot, stick, knob);
-  cockpitGroup.add(gearGroup);
-  registerHighlight("gear-shifter", knob);
 
-  // Mechanical Handbrake Lever
+  // Etched H-Pattern Shift Diagram on Top of Knob
+  const shiftBadgeGeo = new THREE.PlaneGeometry(0.03, 0.03);
+  const shiftBadge = new THREE.Mesh(shiftBadgeGeo, glowYellow);
+  shiftBadge.position.set(0, 0.21, 0);
+  shiftBadge.rotation.x = -Math.PI / 2;
+
+  gearGroup.add(boot, stick, knob, shiftBadge);
+  cockpitGroup.add(gearGroup);
+  registerHighlight("gear-lever", knob);
+  registerHighlight("gear-shifter", knob);
+  registerHighlight("reverse-lockout", knob);
+
+  // =========================================================================
+  // CHAPTER 5: MECHANICAL HANDBRAKE LEVER
+  // =========================================================================
   const handbrakeGroup = new THREE.Group();
+  handbrakeGroup.name = "WagonR_Handbrake";
   handbrakeGroup.position.set(0, 0.24, 0.05);
+
   const hbLeverGeo = new THREE.CylinderGeometry(0.016, 0.016, 0.22);
   hbLeverGeo.rotateX(-0.4);
   const hbLever = new THREE.Mesh(hbLeverGeo, trimMaterial);
+
   const hbButton = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.02), chromeMaterial);
   hbButton.position.set(0, 0.08, -0.06);
+  hbButton.rotateX(-0.4);
+
   handbrakeGroup.add(hbLever, hbButton);
   cockpitGroup.add(handbrakeGroup);
+  registerHighlight("handbrake-lever", hbLever);
   registerHighlight("handbrake", hbLever);
 
   // Driver Seat (+X: 0.35m) & Passenger Seat (-X: -0.35m)
   const seatGeo = new THREE.BoxGeometry(0.48, 0.55, 0.48);
   const headrestGeo = new THREE.BoxGeometry(0.24, 0.18, 0.12);
 
-  // Driver Seat (Right Side)
   const driverSeat = new THREE.Mesh(seatGeo, interiorDarkMaterial);
   driverSeat.position.set(0.35, 0.24, -0.22);
   const driverHeadrest = new THREE.Mesh(headrestGeo, interiorDarkMaterial);
   driverHeadrest.position.set(0.35, 0.62, -0.25);
   cockpitGroup.add(driverSeat, driverHeadrest);
 
-  // Passenger Seat (Left Side)
   const passengerSeat = new THREE.Mesh(seatGeo, interiorDarkMaterial);
   passengerSeat.position.set(-0.35, 0.24, -0.22);
   const passengerHeadrest = new THREE.Mesh(headrestGeo, interiorDarkMaterial);
@@ -688,7 +808,7 @@ export function createWagonRModel(): WagonRCarModel {
   registerHighlight("seatbelts", seatbelt);
 
   // =========================================================================
-  // 7. ARTICULATED MANUAL ABC PEDAL BOX (Right-Hand Drive Footwell)
+  // CHAPTER 4: ARTICULATED MANUAL ABC PEDAL BOX (Indian RHD Footwell)
   // Driver Footwell Center is at +X = 0.35m
   // Layout (Left to Right):
   // [C] Clutch at +X = 0.24m
@@ -696,7 +816,6 @@ export function createWagonRModel(): WagonRCarModel {
   // [A] Accelerator at +X = 0.46m
   // =========================================================================
   const pedalArmGeo = new THREE.CylinderGeometry(0.008, 0.008, 0.22);
-  const pedalPadGeo = new THREE.BoxGeometry(0.075, 0.09, 0.025);
   const rubberPadMat = new THREE.MeshStandardMaterial({ color: 0x111115, roughness: 0.92 });
 
   // [C] Clutch Pedal
@@ -704,7 +823,7 @@ export function createWagonRModel(): WagonRCarModel {
   clutchGroup.position.set(0.24, 0.24, 0.65);
   const cArm = new THREE.Mesh(pedalArmGeo, chromeMaterial);
   cArm.position.y = -0.09;
-  const cPad = new THREE.Mesh(pedalPadGeo, rubberPadMat);
+  const cPad = new THREE.Mesh(new THREE.BoxGeometry(0.075, 0.09, 0.025), rubberPadMat);
   cPad.position.set(0, -0.18, 0.02);
   clutchGroup.add(cArm, cPad);
   cockpitGroup.add(clutchGroup);
@@ -735,7 +854,6 @@ export function createWagonRModel(): WagonRCarModel {
   // =========================================================================
   // 8. EXTERIOR LIGHTING & SIGNALLING
   // =========================================================================
-  // Headlamps
   const headlampGeo = new THREE.BoxGeometry(0.26, 0.22, 0.12);
   const hlL = new THREE.Mesh(headlampGeo, glowOff);
   hlL.position.set(-0.64, 0.68, 1.88);
@@ -746,7 +864,6 @@ export function createWagonRModel(): WagonRCarModel {
   bodyGroup.add(hlR);
   registerHighlight("headlights-ext", hlR);
 
-  // Headlight Spotlights
   const spotL = new THREE.SpotLight(0xfff8d6, 0, 24, Math.PI / 4, 0.45);
   spotL.position.set(-0.64, 0.68, 1.95);
   spotL.target.position.set(-0.64, 0.2, 8);
@@ -757,7 +874,6 @@ export function createWagonRModel(): WagonRCarModel {
   spotR.target.position.set(0.64, 0.2, 8);
   root.add(spotR, spotR.target);
 
-  // Front & Rear Turn Blinkers (Amber)
   const indGeo = new THREE.BoxGeometry(0.08, 0.08, 0.05);
   const indFL = new THREE.Mesh(indGeo, glowOff);
   indFL.position.set(-0.78, 0.68, 1.86);
@@ -772,7 +888,6 @@ export function createWagonRModel(): WagonRCarModel {
   indRR.position.set(0.75, 0.88, -1.82);
   bodyGroup.add(indRL, indRR);
 
-  // Rear Brake Lamps
   const brakeGeo = new THREE.BoxGeometry(0.18, 0.35, 0.06);
   const brakeL = new THREE.Mesh(brakeGeo, glowOff);
   brakeL.position.set(-0.74, 0.88, -1.84);
@@ -781,13 +896,11 @@ export function createWagonRModel(): WagonRCarModel {
   bodyGroup.add(brakeL, brakeR);
   registerHighlight("brake-lights", brakeR);
 
-  // High-Mount Center Stop Lamp
   const highStopGeo = new THREE.BoxGeometry(0.35, 0.04, 0.04);
   const highStop = new THREE.Mesh(highStopGeo, glowOff);
   highStop.position.set(0, 1.28, -1.83);
   bodyGroup.add(highStop);
 
-  // Studio Underglow Ambient Light
   const underglowLight = new THREE.PointLight(0xffe500, 0, 5);
   underglowLight.position.set(0, 0.15, 0);
   root.add(underglowLight);
@@ -820,25 +933,26 @@ export function createWagonRModel(): WagonRCarModel {
 
   const updateAnimation: WagonRCarModel["updateAnimation"] = (options) => {
     const {
-      bonnetAngle,
+      bonnetAngle = 0,
       driverDoorAngle = 0,
-      wheelExplodeOffset,
-      pedals,
+      wheelExplodeOffset = 0,
+      steeringExplodeOffset = 0,
       steeringAngle = 0,
       gearPosition = "N",
+      pedals,
+      handbrakeEngaged = false,
       lights,
+      dashboard,
       time,
       delta,
       speed = 0,
     } = options;
 
-    // 1. Articulated Bonnet
+    // 1. Articulated Bonnet & Driver Door
     bonnetPivot.rotation.x = -bonnetAngle;
-
-    // 2. Articulated Front-Right Driver Door (Swings open outwards: negative Y rotation)
     driverDoorPivot.rotation.y = -driverDoorAngle;
 
-    // 3. Exploded Wheel Assembly along X-axis
+    // 2. Exploded Wheel Assembly along X-axis
     const explode = wheelExplodeOffset;
     caliperGroup.position.x = baseWheelX + 0.02 + 0.22 * explode;
     discGroup.position.x = baseWheelX + 0.08 + 0.44 * explode;
@@ -856,51 +970,60 @@ export function createWagonRModel(): WagonRCarModel {
       });
     }
 
-    // 4. Steering Wheel Articulation
+    // 3. CHAPTER 2: STEERING WHEEL EXPLODED SEPARATION & ROTATION
+    // Base position is (0, 0.08, -0.12)
+    // Moves forward along steering rake axis: Y moves up (+0.12), Z moves forward (-0.26)
+    const targetWheelY = 0.08 + 0.12 * steeringExplodeOffset;
+    const targetWheelZ = -0.12 - 0.26 * steeringExplodeOffset;
+    steeringWheel.position.y += (targetWheelY - steeringWheel.position.y) * 0.2;
+    steeringWheel.position.z += (targetWheelZ - steeringWheel.position.z) * 0.2;
     steeringWheel.rotation.z += (steeringAngle - steeringWheel.rotation.z) * 0.25;
 
-    // 5. 5-Speed Gear Lever H-Pattern Positions
-    // Base position: X = 0, Z = 0
-    let targetGearX = 0;
-    let targetGearZ = 0;
+    steeringGuideLineMat.opacity = steeringExplodeOffset * 0.8;
+
+    // 4. CHAPTER 3: 5-SPEED GEAR LEVER H-PATTERN
+    let targetGearRotX = 0;
+    let targetGearRotZ = 0;
     switch (gearPosition) {
       case "1":
-        targetGearX = -0.035;
-        targetGearZ = 0.045;
+        targetGearRotX = 0.24;
+        targetGearRotZ = -0.22;
         break;
       case "2":
-        targetGearX = -0.035;
-        targetGearZ = -0.045;
+        targetGearRotX = -0.24;
+        targetGearRotZ = -0.22;
         break;
       case "3":
-        targetGearX = 0;
-        targetGearZ = 0.045;
+        targetGearRotX = 0.24;
+        targetGearRotZ = 0;
         break;
       case "4":
-        targetGearX = 0;
-        targetGearZ = -0.045;
+        targetGearRotX = -0.24;
+        targetGearRotZ = 0;
         break;
       case "5":
-        targetGearX = 0.035;
-        targetGearZ = 0.045;
+        targetGearRotX = 0.24;
+        targetGearRotZ = 0.22;
         break;
       case "R":
-        targetGearX = 0.035;
-        targetGearZ = -0.045;
+        targetGearRotX = -0.24;
+        targetGearRotZ = 0.22;
         break;
       case "N":
       default:
-        targetGearX = 0;
-        targetGearZ = 0;
+        targetGearRotX = 0;
+        targetGearRotZ = 0;
         break;
     }
-    stick.rotation.z += (targetGearX * 6 - stick.rotation.z) * 0.25;
-    stick.rotation.x += (targetGearZ * 6 - stick.rotation.x) * 0.25;
+    stick.rotation.x += (targetGearRotX - stick.rotation.x) * 0.25;
+    stick.rotation.z += (targetGearRotZ - stick.rotation.z) * 0.25;
     knob.position.x = stick.rotation.z * 0.12;
     knob.position.z = -stick.rotation.x * 0.12;
+    shiftBadge.position.x = knob.position.x;
+    shiftBadge.position.z = knob.position.z;
 
-    // 6. Manual ABC Pedal Depression
-    const targetClutch = pedals.clutch ? -0.32 : 0;
+    // 5. CHAPTER 4: ABC PEDAL MECHANICAL ARCS
+    const targetClutch = pedals.clutch ? -0.35 : 0;
     const targetBrake = pedals.brake ? -0.32 : 0;
     const targetAccel = pedals.accel ? -0.28 : 0;
 
@@ -908,17 +1031,36 @@ export function createWagonRModel(): WagonRCarModel {
     brakeGroup.rotation.x += (targetBrake - brakeGroup.rotation.x) * 0.25;
     accelGroup.rotation.x += (targetAccel - accelGroup.rotation.x) * 0.25;
 
-    // 7. Lighting & Signal System
+    // 6. CHAPTER 5: MECHANICAL HANDBRAKE LEVER
+    const targetHbRot = handbrakeEngaged ? 0.38 : -0.4;
+    handbrakeGroup.rotation.x += (targetHbRot - handbrakeGroup.rotation.x) * 0.22;
+
+    // 7. CHAPTER 6: DASHBOARD INSTRUMENTS & SIGNALS
+    const blinkOn = Math.sin(time * 10) > 0;
+    const leftOn = (lights.leftIndicator || lights.hazard) && blinkOn;
+    const rightOn = (lights.rightIndicator || lights.hazard) && blinkOn;
+
+    turnSignalL.material = leftOn ? glowAmber : glowOff;
+    turnSignalR.material = rightOn ? glowAmber : glowOff;
+
+    const isHazardActive = lights.hazard || (dashboard && dashboard.hazard);
+    hazardButton.material = isHazardActive && blinkOn ? glowRed : glowOff;
+
+    const isTempOverheat = dashboard && dashboard.tempWarning;
+    tempWarningIcon.material = isTempOverheat ? glowRed : glowOff;
+
+    // Speedometer needle sweep
+    const currentSpeed = speed || (dashboard && dashboard.speed) || 0;
+    const needleTargetAngle = -0.3 - (currentSpeed / 180) * Math.PI * 1.2;
+    speedometerNeedle.rotation.z += (needleTargetAngle - speedometerNeedle.rotation.z) * 0.15;
+
+    // Exterior Lights
     const hlIntensity = lights.headlights ? 5.5 : 0;
     spotL.intensity = hlIntensity;
     spotR.intensity = hlIntensity;
     const hlMat = lights.headlights ? glowYellow : glowOff;
     hlL.material = hlMat;
     hlR.material = hlMat;
-
-    const blinkOn = Math.sin(time * 10) > 0;
-    const leftOn = (lights.leftIndicator || lights.hazard) && blinkOn;
-    const rightOn = (lights.rightIndicator || lights.hazard) && blinkOn;
 
     indFL.material = leftOn ? glowAmber : glowOff;
     indRL.material = leftOn ? glowAmber : glowOff;
@@ -951,11 +1093,18 @@ export function createWagonRModel(): WagonRCarModel {
       group: cockpitGroup,
       steeringWheel,
       steeringColumn,
+      steeringGuideLines,
       clutchPedal: clutchGroup,
       brakePedal: brakeGroup,
       accelPedal: accelGroup,
       gearLever: gearGroup,
       handbrake: handbrakeGroup,
+      hazardButton,
+      ignitionSwitch: ignitionGroup,
+      turnSignalL,
+      turnSignalR,
+      tempWarningIcon,
+      speedometerNeedle,
     },
     engineBay: {
       group: engineBayGroup,

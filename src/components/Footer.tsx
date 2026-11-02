@@ -1,9 +1,28 @@
 import React from "react";
-import { MessageSquare, ArrowUp } from "lucide-react";
-import { BRAND_CONFIG, createWhatsAppLink } from "../config/contact";
+import { MessageSquare, ArrowUp, Phone, Mail, MapPin } from "lucide-react";
+import { SITE_DATA } from "../config/siteData";
+import { createWhatsAppLink } from "../config/contact";
 
-export const Footer: React.FC = () => {
+interface FooterProps {
+  onNavigate?: (page: "home" | "owner" | "contact") => void;
+}
+
+export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
+  const brand = SITE_DATA.brand;
+  const contact = SITE_DATA.contact;
+  const socialLinks = SITE_DATA.socialLinks;
+
   const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleLinkClick = (e: React.MouseEvent, page: "home" | "owner" | "contact") => {
+    e.preventDefault();
+    if (onNavigate) {
+      onNavigate(page);
+    } else {
+      window.location.hash = page === "home" ? "#/" : `#/${page}`;
+    }
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -12,23 +31,23 @@ export const Footer: React.FC = () => {
       style={{
         backgroundColor: "var(--bg-darkest)",
         borderTop: "1px solid rgba(255, 255, 255, 0.08)",
-        paddingTop: "70px",
+        paddingTop: "60px",
         paddingBottom: "36px",
         position: "relative",
       }}
     >
       <div className="container">
-        {/* Top 4-Column Layout */}
+        {/* Top Multi-Column Layout */}
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 200px), 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 220px), 1fr))",
             gap: "clamp(24px, 4vw, 40px)",
             marginBottom: "40px",
           }}
         >
           {/* Col 1: Brand Info */}
-          <div style={{ maxWidth: "320px" }}>
+          <div style={{ maxWidth: "340px" }}>
             <div
               style={{
                 display: "flex",
@@ -89,8 +108,8 @@ export const Footer: React.FC = () => {
               </div>
             </div>
 
-            <p style={{ fontSize: "0.85rem", color: "var(--text-muted)", lineHeight: 1.6, marginBottom: "20px" }}>
-              {BRAND_CONFIG.description}
+            <p style={{ fontSize: "0.84rem", color: "var(--text-muted)", lineHeight: 1.6, marginBottom: "20px" }}>
+              {brand.description}
             </p>
 
             <a
@@ -98,14 +117,22 @@ export const Footer: React.FC = () => {
               target="_blank"
               rel="noopener noreferrer"
               className="btn btn-whatsapp"
-              style={{ padding: "10px 18px", fontSize: "0.82rem", borderRadius: "var(--radius-full)" }}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                padding: "9px 18px",
+                fontSize: "0.82rem",
+                borderRadius: "var(--radius-full)",
+                textDecoration: "none",
+              }}
             >
               <MessageSquare size={15} />
               Enquire on WhatsApp
             </a>
           </div>
 
-          {/* Col 2: Quick Links */}
+          {/* Col 2: Three Pages Quick Navigation */}
           <div>
             <h5
               style={{
@@ -118,39 +145,62 @@ export const Footer: React.FC = () => {
                 marginBottom: "18px",
               }}
             >
-              Navigation
+              Pages
             </h5>
 
-            <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "10px" }}>
-              {[
-                { name: "Home", href: "#home" },
-                { name: "Vehicle Categories", href: "#vehicles" },
-                { name: "Courses & Pricing", href: "#pricing" },
-                { name: "Training Schedule", href: "#schedule" },
-                { name: "Driving Licence Assistance", href: "#licence" },
-                { name: "Traffic Rules & Safety", href: "#traffic-rules" },
-                { name: "Photo Gallery", href: "#gallery" },
-                { name: "Contact & Admissions", href: "#contact" },
-              ].map((item) => (
-                <li key={item.name}>
-                  <a
-                    href={item.href}
-                    style={{
-                      fontSize: "0.86rem",
-                      color: "var(--text-body)",
-                      transition: "color 0.2s ease",
-                    }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = "var(--accent-yellow)")}
-                    onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-body)")}
-                  >
-                    {item.name}
-                  </a>
-                </li>
-              ))}
+            <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "12px", padding: 0 }}>
+              <li>
+                <a
+                  href="#/"
+                  onClick={(e) => handleLinkClick(e, "home")}
+                  style={{
+                    fontSize: "0.88rem",
+                    color: "var(--text-body)",
+                    textDecoration: "none",
+                    transition: "color 0.2s ease",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = "var(--accent-yellow)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-body)")}
+                >
+                  Home (3D Car & Courses)
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#/owner"
+                  onClick={(e) => handleLinkClick(e, "owner")}
+                  style={{
+                    fontSize: "0.88rem",
+                    color: "var(--text-body)",
+                    textDecoration: "none",
+                    transition: "color 0.2s ease",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = "var(--accent-yellow)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-body)")}
+                >
+                  Owner & Certifications
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#/contact"
+                  onClick={(e) => handleLinkClick(e, "contact")}
+                  style={{
+                    fontSize: "0.88rem",
+                    color: "var(--text-body)",
+                    textDecoration: "none",
+                    transition: "color 0.2s ease",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = "var(--accent-yellow)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-body)")}
+                >
+                  Contact & Location
+                </a>
+              </li>
             </ul>
           </div>
 
-          {/* Col 3: Training Packages & Pricing */}
+          {/* Col 3: Direct Contact Details */}
           <div>
             <h5
               style={{
@@ -163,41 +213,63 @@ export const Footer: React.FC = () => {
                 marginBottom: "18px",
               }}
             >
-              Course Pricing
+              Direct Contact
             </h5>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: "14px", fontSize: "0.85rem" }}>
-              <div>
-                <div style={{ color: "var(--text-white)", fontWeight: 700 }}>Group Training</div>
-                <div style={{ color: "var(--accent-yellow)", fontFamily: "var(--font-mono)", fontSize: "0.8rem" }}>
-                  ₹3,000 • 20 Days (3–4 Learners)
-                </div>
-              </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+              <a
+                href={`tel:${contact.phoneDial}`}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  fontSize: "0.84rem",
+                  color: "var(--text-body)",
+                  textDecoration: "none",
+                  transition: "color 0.2s ease",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = "var(--accent-yellow)")}
+                onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-body)")}
+              >
+                <Phone size={15} color="var(--accent-yellow)" />
+                <span>{contact.phoneDisplay}</span>
+              </a>
 
-              <div>
-                <div style={{ color: "var(--text-white)", fontWeight: 700 }}>Semi-Personal Training</div>
-                <div style={{ color: "var(--accent-yellow)", fontFamily: "var(--font-mono)", fontSize: "0.8rem" }}>
-                  ₹5,500 • 20 Days (2 Learners)
-                </div>
-              </div>
+              <a
+                href={`mailto:${contact.email}`}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  fontSize: "0.84rem",
+                  color: "var(--text-body)",
+                  textDecoration: "none",
+                  transition: "color 0.2s ease",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = "var(--accent-yellow)")}
+                onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-body)")}
+              >
+                <Mail size={15} color="var(--accent-yellow)" />
+                <span>{contact.email}</span>
+              </a>
 
-              <div>
-                <div style={{ color: "var(--text-white)", fontWeight: 700 }}>Personal Training (1-on-1)</div>
-                <div style={{ color: "var(--accent-yellow)", fontFamily: "var(--font-mono)", fontSize: "0.8rem" }}>
-                  ₹11,000 • 20 Days (Dedicated)
-                </div>
-              </div>
-
-              <div>
-                <div style={{ color: "var(--text-white)", fontWeight: 700 }}>Licence Assistance</div>
-                <div style={{ color: "var(--accent-yellow)", fontFamily: "var(--font-mono)", fontSize: "0.8rem" }}>
-                  ₹3,000 (RTO Guidance)
-                </div>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: "8px",
+                  fontSize: "0.82rem",
+                  color: "var(--text-muted)",
+                  lineHeight: 1.4,
+                }}
+              >
+                <MapPin size={15} color="var(--accent-yellow)" style={{ flexShrink: 0, marginTop: "2px" }} />
+                <span>{contact.address}</span>
               </div>
             </div>
           </div>
 
-          {/* Col 4: Timings & Location Placeholders */}
+          {/* Col 4: Verified Social Media & Timings */}
           <div>
             <h5
               style={{
@@ -210,31 +282,39 @@ export const Footer: React.FC = () => {
                 marginBottom: "18px",
               }}
             >
-              Session Timings
+              Connected Channels
             </h5>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: "10px", fontSize: "0.84rem" }}>
-              <div style={{ color: "var(--text-white)" }}>
-                <strong>Monday to Saturday:</strong>
-                <div style={{ color: "var(--text-muted)", marginTop: "3px" }}>06:00 AM – 07:00 AM</div>
-                <div style={{ color: "var(--text-muted)" }}>07:00 AM – 08:00 AM</div>
-                <div style={{ color: "var(--text-muted)" }}>08:00 AM – 09:00 AM</div>
-              </div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "16px" }}>
+              {socialLinks.map((s) => (
+                <a
+                  key={s.id}
+                  href={s.active ? s.url : undefined}
+                  target={s.active ? "_blank" : undefined}
+                  rel={s.active ? "noopener noreferrer" : undefined}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    padding: "6px 12px",
+                    borderRadius: "4px",
+                    fontSize: "0.76rem",
+                    background: s.active ? "rgba(255, 229, 0, 0.1)" : "rgba(255, 255, 255, 0.04)",
+                    color: s.active ? "var(--accent-yellow)" : "var(--text-dim)",
+                    border: s.active ? "1px solid rgba(255, 229, 0, 0.3)" : "1px solid rgba(255, 255, 255, 0.08)",
+                    textDecoration: "none",
+                    cursor: s.active ? "pointer" : "default",
+                  }}
+                  title={s.active ? s.name : `${s.name} (Coming soon)`}
+                >
+                  <span>{s.name}</span>
+                  {!s.active && <span style={{ fontSize: "0.65rem", opacity: 0.6 }}>(soon)</span>}
+                </a>
+              ))}
+            </div>
 
-              <div
-                style={{
-                  marginTop: "6px",
-                  padding: "6px 10px",
-                  background: "rgba(239, 68, 68, 0.12)",
-                  borderRadius: "4px",
-                  border: "1px solid rgba(239, 68, 68, 0.3)",
-                  color: "var(--accent-red)",
-                  fontWeight: 700,
-                  fontSize: "0.78rem",
-                }}
-              >
-                SUNDAY CLOSED (Fleet Maintenance)
-              </div>
+            <div style={{ fontSize: "0.78rem", color: "var(--text-dim)", fontFamily: "var(--font-mono)" }}>
+              Training Hours: Mon–Sat 6 AM – 9 AM
             </div>
           </div>
         </div>
@@ -242,43 +322,34 @@ export const Footer: React.FC = () => {
         {/* Bottom Bar: Copyright & Back to Top */}
         <div
           style={{
+            borderTop: "1px solid rgba(255, 255, 255, 0.06)",
             paddingTop: "24px",
-            borderTop: "1px solid rgba(255, 255, 255, 0.08)",
             display: "flex",
-            flexWrap: "wrap",
             alignItems: "center",
             justifyContent: "space-between",
-            gap: "16px",
-            fontSize: "0.8rem",
-            color: "var(--text-dim)",
+            flexWrap: "wrap",
+            gap: "14px",
           }}
         >
-          <div>
-            © 2026 Ghosh Motor Training School. All rights reserved. • Haider Para, Siliguri
+          <div style={{ fontSize: "0.78rem", color: "var(--text-dim)", fontFamily: "var(--font-mono)" }}>
+            © 2026 {brand.name}. All Rights Reserved. Siliguri, West Bengal.
           </div>
 
           <button
+            type="button"
             onClick={scrollToTop}
             style={{
               display: "flex",
               alignItems: "center",
               gap: "6px",
-              color: "var(--text-muted)",
-              background: "rgba(255, 255, 255, 0.05)",
+              background: "rgba(255, 255, 255, 0.04)",
               border: "1px solid rgba(255, 255, 255, 0.1)",
+              color: "var(--text-muted)",
               padding: "6px 12px",
-              borderRadius: "var(--radius-full)",
-              fontSize: "0.75rem",
+              borderRadius: "var(--radius-sm)",
+              fontSize: "0.78rem",
+              fontFamily: "var(--font-mono)",
               cursor: "pointer",
-              transition: "all 0.2s ease",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.color = "var(--accent-yellow)";
-              e.currentTarget.style.borderColor = "var(--accent-yellow)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.color = "var(--text-muted)";
-              e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.1)";
             }}
           >
             <span>Back to top</span>

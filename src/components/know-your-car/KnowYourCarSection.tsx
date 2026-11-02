@@ -2,15 +2,12 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 import * as THREE from "three";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { createWagonRModel } from "./WagonRModel";
 import type { WagonRCarModel } from "./WagonRModel";
-import { AUTOMOTIVE_STAGES, COMPONENT_HOTSPOTS } from "../../data/automotiveData";
-import type { ComponentHotspot, StageConfig, GearPosition } from "../../types/automotive";
-import { InteractiveHotspots } from "./InteractiveHotspots";
-import { EducationalPanel } from "./EducationalPanel";
-import { ManualExplorationModal } from "./ManualExplorationModal";
-import type { PresetCategory } from "./ManualExplorationModal";
+import { AUTOMOTIVE_CHAPTERS, COMPONENT_CALLOUTS } from "../../data/automotiveCurriculum";
+import type { ChapterConfig, ComponentCallout, GearPosition } from "../../types/automotive";
+import { InteractiveCallouts } from "./InteractiveCallouts";
+import { CockpitHudControls } from "./CockpitHudControls";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -23,64 +20,71 @@ export const KnowYourCarSection: React.FC<KnowYourCarSectionProps> = ({ onExplor
   const pinContainerRef = useRef<HTMLDivElement>(null);
   const canvasMountRef = useRef<HTMLDivElement>(null);
 
-  // Responsive device tracking
-  const [windowWidth, setWindowWidth] = useState<number>(() =>
-    typeof window !== "undefined" ? window.innerWidth : 1200
-  );
-  const isMobile = windowWidth <= 900;
-  const isTablet = windowWidth > 900 && windowWidth <= 1180;
+  // Active Chapter Index (0 to 5)
+  const [currentChapterIndex, setCurrentChapterIndex] = useState<number>(0);
+  const [selectedCallout, setSelectedCallout] = useState<ComponentCallout | null>(null);
 
-  // Active Stage Index (0 to 9 for 10 scenes)
-  const [currentStageIndex, setCurrentStageIndex] = useState<number>(0);
-  const [selectedHotspot, setSelectedHotspot] = useState<ComponentHotspot | null>(null);
-  const [isManualModalOpen, setIsManualModalOpen] = useState<boolean>(false);
-
-  // Interactive Widgets State
+  // Chapter 2: Steering Wheel State
   const [steeringAngle, setSteeringAngle] = useState<number>(0);
-  const [gearPosition, setGearPosition] = useState<GearPosition>("N");
-  const [checklistState, setChecklistState] = useState<Record<string, boolean>>({});
+  const [steeringExploded, setSteeringExploded] = useState<boolean>(false);
 
-  // Pedal State (Manual ABC pedals)
+  // Chapter 3: Gear Lever State
+  const [gearPosition, setGearPosition] = useState<GearPosition>("N");
+
+  // Chapter 4: ABC Pedals State
   const [pedalsState, setPedalsState] = useState({
     clutch: false,
     brake: false,
     accel: false,
   });
 
-  // Lights State
-  const [lightsState, setLightsState] = useState({
-    headlights: false,
-    leftIndicator: false,
-    rightIndicator: false,
+  // Chapter 5: Handbrake State
+  const [handbrakeEngaged, setHandbrakeEngaged] = useState<boolean>(true);
+
+  // Chapter 6: Dashboard State
+  const [dashboardState, setDashboardState] = useState({
     hazard: false,
-    brakeLights: false,
+    turnLeft: false,
+    turnRight: false,
+    headlights: false,
+    tempWarning: false,
   });
 
-  // State refs for animation loop to avoid Three.js recreation
+  // Refs for animation loop to avoid Three.js recreation on state changes
   const pedalsStateRef = useRef(pedalsState);
   useEffect(() => {
     pedalsStateRef.current = pedalsState;
   }, [pedalsState]);
 
-  const lightsStateRef = useRef(lightsState);
+  const dashboardStateRef = useRef(dashboardState);
   useEffect(() => {
-    lightsStateRef.current = lightsState;
-  }, [lightsState]);
+    dashboardStateRef.current = dashboardState;
+  }, [dashboardState]);
 
   const steeringAngleRef = useRef(steeringAngle);
   useEffect(() => {
     steeringAngleRef.current = steeringAngle;
   }, [steeringAngle]);
 
+  const steeringExplodedRef = useRef(steeringExploded);
+  useEffect(() => {
+    steeringExplodedRef.current = steeringExploded;
+  }, [steeringExploded]);
+
   const gearPositionRef = useRef(gearPosition);
   useEffect(() => {
     gearPositionRef.current = gearPosition;
   }, [gearPosition]);
 
-  const currentStageIndexRef = useRef(currentStageIndex);
+  const handbrakeEngagedRef = useRef(handbrakeEngaged);
   useEffect(() => {
-    currentStageIndexRef.current = currentStageIndex;
-  }, [currentStageIndex]);
+    handbrakeEngagedRef.current = handbrakeEngaged;
+  }, [handbrakeEngaged]);
+
+  const currentChapterIndexRef = useRef(currentChapterIndex);
+  useEffect(() => {
+    currentChapterIndexRef.current = currentChapterIndex;
+  }, [currentChapterIndex]);
 
   // Hotspot 2D Screen Projections
   const [screenPositions, setScreenPositions] = useState<
@@ -97,163 +101,107 @@ export const KnowYourCarSection: React.FC<KnowYourCarSectionProps> = ({ onExplor
     targetCamPos: THREE.Vector3;
     targetCamLookAt: THREE.Vector3;
     currentCamLookAt: THREE.Vector3;
+    targetSteeringExplode: number;
+    currentSteeringExplode: number;
+    targetSteeringAngle: number;
+    currentSteeringAngle: number;
     targetCarRotationY: number;
     currentCarRotationY: number;
-    targetBonnetAngle: number;
-    currentBonnetAngle: number;
-    targetDoorAngle: number;
-    currentDoorAngle: number;
-    targetWheelExplode: number;
-    currentWheelExplode: number;
     isUserDragging: boolean;
     dragDeltaX: number;
   } | null>(null);
 
-  const currentStage: StageConfig = AUTOMOTIVE_STAGES[currentStageIndex] || AUTOMOTIVE_STAGES[0];
+  const currentChapter: ChapterConfig =
+    AUTOMOTIVE_CHAPTERS[currentChapterIndex] || AUTOMOTIVE_CHAPTERS[0];
 
-  // Helper to toggle ABC pedals
+  // Helper: toggle ABC pedals
   const handleTogglePedal = (pedal: "clutch" | "brake" | "accel") => {
     setPedalsState((prev) => ({
       ...prev,
       [pedal]: !prev[pedal],
     }));
 
-    // Auto-release after 900ms to simulate a driver's press and release
+    // Auto-release after 950ms for realistic mechanical feedback
     setTimeout(() => {
       setPedalsState((prev) => ({
         ...prev,
         [pedal]: false,
       }));
-    }, 900);
+    }, 950);
   };
 
-  // Helper to toggle lights
-  const handleToggleLight = (lightKey: keyof typeof lightsState) => {
-    setLightsState((prev) => {
-      if (lightKey === "hazard") {
+  // Helper: toggle handbrake
+  const handleToggleHandbrake = () => {
+    setHandbrakeEngaged((prev) => !prev);
+  };
+
+  // Helper: toggle steering exploded view
+  const handleToggleSteeringExplode = () => {
+    setSteeringExploded((prev) => !prev);
+    if (threeRefs.current) {
+      threeRefs.current.targetSteeringExplode = !steeringExploded ? 1 : 0;
+    }
+  };
+
+  // Helper: toggle dashboard switches
+  const handleToggleDashboardSwitch = (key: keyof typeof dashboardState) => {
+    setDashboardState((prev) => {
+      if (key === "hazard") {
         return {
           ...prev,
           hazard: !prev.hazard,
-          leftIndicator: false,
-          rightIndicator: false,
+          turnLeft: false,
+          turnRight: false,
         };
       }
       return {
         ...prev,
-        [lightKey]: !prev[lightKey],
+        [key]: !prev[key],
       };
     });
   };
 
-  // Helper to toggle checklist items
-  const handleToggleChecklistItem = (itemId: string) => {
-    setChecklistState((prev) => ({
-      ...prev,
-      [itemId]: !prev[itemId],
-    }));
-  };
-
-  // Handle Hotspot Selection
-  const handleSelectHotspot = useCallback((hotspot: ComponentHotspot | null) => {
-    setSelectedHotspot(hotspot);
+  // Handle Callout Selection
+  const handleSelectCallout = useCallback((callout: ComponentCallout | null) => {
+    setSelectedCallout(callout);
     if (!threeRefs.current) return;
 
-    if (hotspot) {
-      threeRefs.current.carModel.highlightComponent(hotspot.id);
-      const [hx, hy, hz] = hotspot.position3D;
-      const focusTarget = new THREE.Vector3(hx * 0.7, hy + 0.1, hz * 0.7);
+    if (callout) {
+      threeRefs.current.carModel.highlightComponent(callout.id);
+      const [hx, hy, hz] = callout.position3D;
+      const focusTarget = new THREE.Vector3(hx * 0.8, hy, hz * 0.85);
       threeRefs.current.targetCamLookAt.copy(focusTarget);
     } else {
       threeRefs.current.carModel.highlightComponent(null);
     }
   }, []);
 
-  // Preset Views for Manual Mode (PHASE 5)
-  const handleSelectPresetView = (view: PresetCategory) => {
-    if (!threeRefs.current) return;
-    const refs = threeRefs.current;
+  // Programmatic chapter navigation
+  const goToChapter = (chapterIdx: number) => {
+    const clamped = Math.max(0, Math.min(AUTOMOTIVE_CHAPTERS.length - 1, chapterIdx));
+    setCurrentChapterIndex(clamped);
+    setSelectedCallout(null);
 
-    switch (view) {
-      case "exterior":
-        refs.targetCamPos.set(3.8, 1.8, 4.4);
-        refs.targetCamLookAt.set(0, 0.65, 0);
-        refs.targetBonnetAngle = 0;
-        refs.targetDoorAngle = 0;
-        refs.targetWheelExplode = 0;
-        break;
-      case "engine":
-        refs.targetCamPos.set(0.0, 2.05, 2.35);
-        refs.targetCamLookAt.set(0, 0.72, 1.1);
-        refs.targetBonnetAngle = 0.92;
-        refs.targetDoorAngle = 0;
-        refs.targetWheelExplode = 0;
-        break;
-      case "cabin":
-        refs.targetCamPos.set(0.35, 1.05, 0.15);
-        refs.targetCamLookAt.set(0.35, 0.72, 0.95);
-        refs.targetBonnetAngle = 0;
-        refs.targetDoorAngle = 0.95;
-        refs.targetWheelExplode = 0;
-        break;
-      case "pedals":
-        refs.targetCamPos.set(0.35, 0.42, 0.52);
-        refs.targetCamLookAt.set(0.35, 0.15, 0.85);
-        refs.targetBonnetAngle = 0;
-        refs.targetDoorAngle = 0.25;
-        refs.targetWheelExplode = 0;
-        break;
-      case "gearbox":
-        refs.targetCamPos.set(0.18, 0.62, 0.22);
-        refs.targetCamLookAt.set(0.0, 0.32, 0.42);
-        refs.targetBonnetAngle = 0;
-        refs.targetDoorAngle = 0;
-        refs.targetWheelExplode = 0;
-        break;
-      case "safety":
-        refs.targetCamPos.set(0.42, 0.82, 0.38);
-        refs.targetCamLookAt.set(0.32, 0.65, 0.68);
-        refs.targetBonnetAngle = 0;
-        refs.targetDoorAngle = 0;
-        refs.targetWheelExplode = 0;
-        break;
+    const targetChapter = AUTOMOTIVE_CHAPTERS[clamped];
+    if (threeRefs.current && targetChapter) {
+      const refs = threeRefs.current;
+      refs.carModel.highlightComponent(null);
+
+      refs.targetCamPos.set(...targetChapter.cameraPosition);
+      refs.targetCamLookAt.set(...targetChapter.cameraTarget);
+      refs.targetSteeringExplode = targetChapter.steeringExplodeOffset;
+      refs.targetSteeringAngle = targetChapter.steeringRotation;
+
+      setSteeringExploded(targetChapter.steeringExplodeOffset > 0.5);
+      setSteeringAngle(targetChapter.steeringRotation);
+      setGearPosition(targetChapter.gearPosition);
+      setPedalsState(targetChapter.pedals);
+      setHandbrakeEngaged(targetChapter.handbrakeEngaged);
     }
   };
 
   const handleResetCamera = () => {
-    handleSelectPresetView("exterior");
-  };
-
-  // Direct programmatic stage change (from UI buttons or mobile nav)
-  const goToStage = (stageIdx: number) => {
-    const clamped = Math.max(0, Math.min(AUTOMOTIVE_STAGES.length - 1, stageIdx));
-    setCurrentStageIndex(clamped);
-    setSelectedHotspot(null);
-
-    const targetStage = AUTOMOTIVE_STAGES[clamped];
-    if (threeRefs.current && targetStage) {
-      const refs = threeRefs.current;
-      refs.carModel.highlightComponent(null);
-
-      const zoom = isMobile ? 1.25 : 1.0;
-      refs.targetCamPos.set(
-        targetStage.cameraPosition[0] * zoom,
-        targetStage.cameraPosition[1] * (isMobile ? 1.15 : 1.0),
-        targetStage.cameraPosition[2] * zoom
-      );
-      refs.targetCamLookAt.set(...targetStage.cameraTarget);
-      refs.targetCarRotationY = targetStage.carRotationY;
-      refs.targetBonnetAngle = targetStage.bonnetAngle;
-      refs.targetDoorAngle = targetStage.driverDoorAngle;
-      refs.targetWheelExplode = targetStage.wheelExplodeOffset;
-
-      setLightsState({
-        headlights: targetStage.activeLights.headlights,
-        leftIndicator: targetStage.activeLights.leftIndicator,
-        rightIndicator: targetStage.activeLights.rightIndicator,
-        hazard: targetStage.activeLights.hazard,
-        brakeLights: targetStage.activeLights.brakeLights,
-      });
-    }
+    goToChapter(currentChapterIndex);
   };
 
   // Three.js Scene Setup & GSAP ScrollTrigger Integration
@@ -266,13 +214,22 @@ export const KnowYourCarSection: React.FC<KnowYourCarSectionProps> = ({ onExplor
     scene.background = new THREE.Color("#080a0f");
     scene.fog = new THREE.FogExp2(0x080a0f, 0.045);
 
-    // 2. Camera
+    // 2. Camera: Begins directly inside RHD cabin in Chapter 1
     const isMob = window.innerWidth <= 900;
-    const width = container.clientWidth || 800;
-    const height = container.clientHeight || 600;
-    const camera = new THREE.PerspectiveCamera(isMob ? 44 : 38, width / height, 0.1, 100);
+    const width = container.clientWidth || window.innerWidth;
+    const height = container.clientHeight || window.innerHeight;
+    const initialChapter = AUTOMOTIVE_CHAPTERS[0];
 
-    // 3. Renderer with PBR support & shadow maps
+    const camera = new THREE.PerspectiveCamera(
+      initialChapter.cameraFov || (isMob ? 46 : 42),
+      width / height,
+      0.05,
+      80
+    );
+    camera.position.set(...initialChapter.cameraPosition);
+    camera.lookAt(new THREE.Vector3(...initialChapter.cameraTarget));
+
+    // 3. Renderer with PBR support & ACESFilmic tone mapping
     const renderer = new THREE.WebGLRenderer({
       antialias: true,
       alpha: false,
@@ -283,117 +240,81 @@ export const KnowYourCarSection: React.FC<KnowYourCarSectionProps> = ({ onExplor
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.08;
+    renderer.toneMappingExposure = 1.12;
     container.appendChild(renderer.domElement);
 
-    // 4. Studio Lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
+    // 4. Cinematic Automotive Lighting
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.95);
     scene.add(ambientLight);
 
-    const mainKeyLight = new THREE.DirectionalLight(0xfff5e6, 2.2);
-    mainKeyLight.position.set(6, 9, 7);
+    // Key light entering through windscreen
+    const mainKeyLight = new THREE.DirectionalLight(0xfff5e8, 2.4);
+    mainKeyLight.position.set(0.35, 2.8, 2.6);
     mainKeyLight.castShadow = true;
     mainKeyLight.shadow.mapSize.width = 1024;
     mainKeyLight.shadow.mapSize.height = 1024;
-    mainKeyLight.shadow.camera.near = 0.5;
-    mainKeyLight.shadow.camera.far = 30;
     mainKeyLight.shadow.bias = -0.001;
     scene.add(mainKeyLight);
 
-    const fillLight = new THREE.DirectionalLight(0xaaccff, 0.95);
-    fillLight.position.set(-7, 5, -5);
-    scene.add(fillLight);
+    // Soft cabin bounce light
+    const cabinFill = new THREE.PointLight(0xaaccff, 1.2, 4.5);
+    cabinFill.position.set(0.35, 1.1, 0.2);
+    scene.add(cabinFill);
 
-    const yellowRimLight = new THREE.PointLight(0xffe500, 1.8, 14);
-    yellowRimLight.position.set(0, 3.8, -4);
+    // Golden console rim light
+    const yellowRimLight = new THREE.PointLight(0xffe500, 1.5, 3.8);
+    yellowRimLight.position.set(0.0, 0.6, 0.4);
     scene.add(yellowRimLight);
 
-    // 5. Studio Reflective Floor
-    const roadGeo = new THREE.PlaneGeometry(50, 50);
-    const roadMat = new THREE.MeshStandardMaterial({
-      color: 0x090b10,
-      roughness: 0.28,
-      metalness: 0.12,
-    });
-    const road = new THREE.Mesh(roadGeo, roadMat);
-    road.rotation.x = -Math.PI / 2;
-    road.position.set(0, 0, 0);
-    road.receiveShadow = true;
-    scene.add(road);
+    // Footwell courtesy light
+    const footwellLight = new THREE.PointLight(0xffe500, 0.8, 1.6);
+    footwellLight.position.set(0.35, 0.32, 0.65);
+    scene.add(footwellLight);
 
-    // Highway Shoulder Striping
-    const shoulderGeo = new THREE.PlaneGeometry(0.08, 50);
-    const shoulderMat = new THREE.MeshBasicMaterial({ color: 0x3d4352 });
-    const shoulderL = new THREE.Mesh(shoulderGeo, shoulderMat);
-    shoulderL.rotation.x = -Math.PI / 2;
-    shoulderL.position.set(-4.2, 0.005, 0);
-    scene.add(shoulderL);
-    const shoulderR = shoulderL.clone();
-    shoulderR.position.x = 4.2;
-    scene.add(shoulderR);
-
-    // Center Dashes
-    const dashGeo = new THREE.PlaneGeometry(0.2, 2.4);
-    const dashMat = new THREE.MeshBasicMaterial({ color: 0xffe500 });
-    const dashCount = 12;
-    const instancedDashes = new THREE.InstancedMesh(dashGeo, dashMat, dashCount);
-    instancedDashes.rotation.x = -Math.PI / 2;
-    instancedDashes.position.y = 0.01;
-    const dummy = new THREE.Object3D();
-    for (let i = 0; i < dashCount; i++) {
-      dummy.position.set(0, (i - dashCount / 2) * 4.2, 0);
-      dummy.updateMatrix();
-      instancedDashes.setMatrixAt(i, dummy.matrix);
-    }
-    instancedDashes.instanceMatrix.needsUpdate = true;
-    scene.add(instancedDashes);
-
-    // 6. Instantiate 3D Maruti Suzuki WagonR Model
+    // 5. Instantiate 3D Maruti Suzuki WagonR Model
     const carModel = createWagonRModel();
     scene.add(carModel.root);
 
     // Three references setup
-    const initialStage = AUTOMOTIVE_STAGES[0];
-    const initialZoom = isMob ? 1.25 : 1.0;
     const refs = {
       scene,
       camera,
       renderer,
       carModel,
       clock: new THREE.Clock(),
-      targetCamPos: new THREE.Vector3(
-        initialStage.cameraPosition[0] * initialZoom,
-        initialStage.cameraPosition[1] * (isMob ? 1.15 : 1.0),
-        initialStage.cameraPosition[2] * initialZoom
-      ),
-      targetCamLookAt: new THREE.Vector3(...initialStage.cameraTarget),
-      currentCamLookAt: new THREE.Vector3(...initialStage.cameraTarget),
-      targetCarRotationY: initialStage.carRotationY,
-      currentCarRotationY: initialStage.carRotationY,
-      targetBonnetAngle: 0,
-      currentBonnetAngle: 0,
-      targetDoorAngle: 0,
-      currentDoorAngle: 0,
-      targetWheelExplode: 0,
-      currentWheelExplode: 0,
+      targetCamPos: new THREE.Vector3(...initialChapter.cameraPosition),
+      targetCamLookAt: new THREE.Vector3(...initialChapter.cameraTarget),
+      currentCamLookAt: new THREE.Vector3(...initialChapter.cameraTarget),
+      targetSteeringExplode: 0,
+      currentSteeringExplode: 0,
+      targetSteeringAngle: 0,
+      currentSteeringAngle: 0,
+      targetCarRotationY: 0,
+      currentCarRotationY: 0,
       isUserDragging: false,
       dragDeltaX: 0,
     };
     threeRefs.current = refs;
 
-    // 7. Mouse & Touch Dragging for 360° Car Rotation
+    // 6. Mouse / Touch subtle orbit interaction
     let prevX = 0;
+    let prevY = 0;
     const onMouseDown = (e: MouseEvent) => {
       refs.isUserDragging = true;
       prevX = e.clientX;
+      prevY = e.clientY;
       container.style.cursor = "grabbing";
     };
 
     const onMouseMove = (e: MouseEvent) => {
       if (!refs.isUserDragging) return;
-      const deltaX = e.clientX - prevX;
+      const deltaX = (e.clientX - prevX) * 0.0012;
+      const deltaY = (e.clientY - prevY) * 0.0012;
       prevX = e.clientX;
-      refs.targetCarRotationY += deltaX * 0.0085;
+      prevY = e.clientY;
+
+      refs.targetCamLookAt.x += deltaX;
+      refs.targetCamLookAt.y -= deltaY;
     };
 
     const onMouseUp = () => {
@@ -407,14 +328,19 @@ export const KnowYourCarSection: React.FC<KnowYourCarSectionProps> = ({ onExplor
       if (e.touches.length === 1) {
         refs.isUserDragging = true;
         prevX = e.touches[0].clientX;
+        prevY = e.touches[0].clientY;
       }
     };
 
     const onTouchMove = (e: TouchEvent) => {
       if (!refs.isUserDragging || e.touches.length !== 1) return;
-      const deltaX = e.touches[0].clientX - prevX;
+      const deltaX = (e.touches[0].clientX - prevX) * 0.0012;
+      const deltaY = (e.touches[0].clientY - prevY) * 0.0012;
       prevX = e.touches[0].clientX;
-      refs.targetCarRotationY += deltaX * 0.0085;
+      prevY = e.touches[0].clientY;
+
+      refs.targetCamLookAt.x += deltaX;
+      refs.targetCamLookAt.y -= deltaY;
     };
 
     const onTouchEnd = () => {
@@ -429,62 +355,73 @@ export const KnowYourCarSection: React.FC<KnowYourCarSectionProps> = ({ onExplor
     window.addEventListener("touchmove", onTouchMove, { passive: true });
     window.addEventListener("touchend", onTouchEnd);
 
-    // 8. GSAP ScrollTrigger Pinned Timeline (Desktop & Tablet > 900px)
+    // 7. GSAP ScrollTrigger Pinned Continuous Timeline (Chapters 1 to 6)
     let scrollTriggerInstance: ScrollTrigger | null = null;
-    const canPin = typeof window !== "undefined" && window.innerWidth > 900;
+    const canPin = typeof window !== "undefined";
 
     if (canPin && sectionRef.current && pinContainerRef.current) {
       scrollTriggerInstance = ScrollTrigger.create({
         trigger: sectionRef.current,
         start: "top top",
-        end: window.innerWidth <= 1180 ? "+=4200" : "+=5200", // Pinned length for 10 scenes
+        end: window.innerWidth <= 900 ? "+=2800" : "+=4200",
         pin: pinContainerRef.current,
         scrub: 1.2,
         anticipatePin: 1,
         onUpdate: (self) => {
           const progress = self.progress;
-          const stageIdx = Math.min(AUTOMOTIVE_STAGES.length - 1, Math.floor(progress * AUTOMOTIVE_STAGES.length));
-          setCurrentStageIndex(stageIdx);
+          const numChapters = AUTOMOTIVE_CHAPTERS.length;
+          const chapterIdx = Math.min(numChapters - 1, Math.floor(progress * numChapters));
+          setCurrentChapterIndex(chapterIdx);
 
-          // Interpolate stages smoothly within fractional progress
-          const stageProgress = (progress * AUTOMOTIVE_STAGES.length) % 1;
-          const s1 = AUTOMOTIVE_STAGES[stageIdx];
-          const s2 = AUTOMOTIVE_STAGES[Math.min(AUTOMOTIVE_STAGES.length - 1, stageIdx + 1)];
+          const chapterProgress = (progress * numChapters) % 1;
+          const c1 = AUTOMOTIVE_CHAPTERS[chapterIdx];
+          const c2 = AUTOMOTIVE_CHAPTERS[Math.min(numChapters - 1, chapterIdx + 1)];
 
-          if (s1 && s2 && !refs.isUserDragging) {
+          if (c1 && c2 && !refs.isUserDragging) {
             // Camera position interpolation
-            const lerpedX = THREE.MathUtils.lerp(s1.cameraPosition[0], s2.cameraPosition[0], stageProgress);
-            const lerpedY = THREE.MathUtils.lerp(s1.cameraPosition[1], s2.cameraPosition[1], stageProgress);
-            const lerpedZ = THREE.MathUtils.lerp(s1.cameraPosition[2], s2.cameraPosition[2], stageProgress);
+            const lerpedX = THREE.MathUtils.lerp(c1.cameraPosition[0], c2.cameraPosition[0], chapterProgress);
+            const lerpedY = THREE.MathUtils.lerp(c1.cameraPosition[1], c2.cameraPosition[1], chapterProgress);
+            const lerpedZ = THREE.MathUtils.lerp(c1.cameraPosition[2], c2.cameraPosition[2], chapterProgress);
             refs.targetCamPos.set(lerpedX, lerpedY, lerpedZ);
 
             // Camera target interpolation
-            const targetX = THREE.MathUtils.lerp(s1.cameraTarget[0], s2.cameraTarget[0], stageProgress);
-            const targetY = THREE.MathUtils.lerp(s1.cameraTarget[1], s2.cameraTarget[1], stageProgress);
-            const targetZ = THREE.MathUtils.lerp(s1.cameraTarget[2], s2.cameraTarget[2], stageProgress);
+            const targetX = THREE.MathUtils.lerp(c1.cameraTarget[0], c2.cameraTarget[0], chapterProgress);
+            const targetY = THREE.MathUtils.lerp(c1.cameraTarget[1], c2.cameraTarget[1], chapterProgress);
+            const targetZ = THREE.MathUtils.lerp(c1.cameraTarget[2], c2.cameraTarget[2], chapterProgress);
             refs.targetCamLookAt.set(targetX, targetY, targetZ);
 
-            // Car rotation in Scene 01 (walkaround 360)
-            if (stageIdx === 0) {
-              refs.targetCarRotationY = s1.carRotationY + progress * AUTOMOTIVE_STAGES.length * Math.PI * 0.9;
+            // CHAPTER 2: Steering Wheel Exploded Separation along column rake
+            if (chapterIdx === 1) {
+              // During Chapter 2, separates forward then returns before Chapter 3
+              const explodeCurve = Math.sin(chapterProgress * Math.PI);
+              refs.targetSteeringExplode = explodeCurve;
+              refs.targetSteeringAngle = Math.sin(chapterProgress * Math.PI * 2) * 0.45;
             } else {
-              refs.targetCarRotationY = THREE.MathUtils.lerp(s1.carRotationY, s2.carRotationY, stageProgress);
+              refs.targetSteeringExplode = THREE.MathUtils.lerp(
+                c1.steeringExplodeOffset,
+                c2.steeringExplodeOffset,
+                chapterProgress
+              );
+              refs.targetSteeringAngle = THREE.MathUtils.lerp(
+                c1.steeringRotation,
+                c2.steeringRotation,
+                chapterProgress
+              );
             }
 
-            // Bonnet angle interpolation
-            refs.targetBonnetAngle = THREE.MathUtils.lerp(s1.bonnetAngle, s2.bonnetAngle, stageProgress);
+            // Sync gear position
+            if (c1.gearPosition !== gearPositionRef.current) {
+              setGearPosition(c1.gearPosition);
+            }
 
-            // Driver door angle interpolation (Scene 04 opens, Scene 10 closes)
-            refs.targetDoorAngle = THREE.MathUtils.lerp(s1.driverDoorAngle, s2.driverDoorAngle, stageProgress);
-
-            // Wheel explode interpolation
-            refs.targetWheelExplode = THREE.MathUtils.lerp(s1.wheelExplodeOffset, s2.wheelExplodeOffset, stageProgress);
+            // Sync handbrake
+            setHandbrakeEngaged(c1.handbrakeEngaged);
           }
         },
       });
     }
 
-    // 9. Animation Render Loop
+    // 8. Animation Render Loop
     let animId: number;
     const tempVec = new THREE.Vector3();
 
@@ -493,57 +430,52 @@ export const KnowYourCarSection: React.FC<KnowYourCarSectionProps> = ({ onExplor
       const delta = refs.clock.getDelta();
       const elapsedTime = refs.clock.getElapsedTime();
 
-      // Lerp camera position smoothly
-      camera.position.lerp(refs.targetCamPos, 0.07);
+      // Smoothly lerp camera position
+      camera.position.lerp(refs.targetCamPos, 0.08);
 
-      // Lerp camera lookAt smoothly
-      refs.currentCamLookAt.lerp(refs.targetCamLookAt, 0.07);
+      // Smoothly lerp camera lookAt
+      refs.currentCamLookAt.lerp(refs.targetCamLookAt, 0.08);
       camera.lookAt(refs.currentCamLookAt);
 
-      // Lerp car rotation smoothly
-      refs.currentCarRotationY += (refs.targetCarRotationY - refs.currentCarRotationY) * 0.08;
-      carModel.root.rotation.y = refs.currentCarRotationY;
+      // Smoothly lerp steering exploded offset
+      refs.currentSteeringExplode += (refs.targetSteeringExplode - refs.currentSteeringExplode) * 0.12;
 
-      // Lerp bonnet, driver door & wheel explode
-      refs.currentBonnetAngle += (refs.targetBonnetAngle - refs.currentBonnetAngle) * 0.09;
-      refs.currentDoorAngle += (refs.targetDoorAngle - refs.currentDoorAngle) * 0.09;
-      refs.currentWheelExplode += (refs.targetWheelExplode - refs.currentWheelExplode) * 0.09;
+      // Smoothly lerp steering angle
+      refs.currentSteeringAngle += (refs.targetSteeringAngle - refs.currentSteeringAngle) * 0.15;
 
-      // Update 3D Model parts with latest ref values
+      // Update 3D car model animation
       carModel.updateAnimation({
-        bonnetAngle: refs.currentBonnetAngle,
-        driverDoorAngle: refs.currentDoorAngle,
-        wheelExplodeOffset: refs.currentWheelExplode,
-        pedals: pedalsStateRef.current,
-        steeringAngle: steeringAngleRef.current,
+        steeringExplodeOffset: refs.currentSteeringExplode,
+        steeringAngle: steeringAngleRef.current || refs.currentSteeringAngle,
         gearPosition: gearPositionRef.current,
-        lights: lightsStateRef.current,
+        pedals: pedalsStateRef.current,
+        handbrakeEngaged: handbrakeEngagedRef.current,
+        lights: {
+          headlights: dashboardStateRef.current.headlights,
+          leftIndicator: dashboardStateRef.current.turnLeft,
+          rightIndicator: dashboardStateRef.current.turnRight,
+          hazard: dashboardStateRef.current.hazard,
+          brakeLights: pedalsStateRef.current.brake,
+        },
+        dashboard: {
+          tempWarning: dashboardStateRef.current.tempWarning,
+          hazard: dashboardStateRef.current.hazard,
+          speed: currentChapterIndexRef.current === 0 ? 0 : 45,
+        },
         time: elapsedTime,
         delta,
-        speed: currentStageIndexRef.current === 9 ? 18 : 0, // Rolls gently in final celebration stage
       });
 
-      // Animate road markings
-      if (currentStageIndexRef.current === 9) {
-        const offset = (elapsedTime * 3) % 4.2;
-        for (let i = 0; i < dashCount; i++) {
-          dummy.position.set(0, (i - dashCount / 2) * 4.2 + offset, 0);
-          dummy.updateMatrix();
-          instancedDashes.setMatrixAt(i, dummy.matrix);
-        }
-        instancedDashes.instanceMatrix.needsUpdate = true;
-      }
-
-      // Compute 2D Screen Positions for active Hotspots
+      // Project active Callout 3D Coordinates to 2D Screen Space
       const projected: Record<string, { x: number; y: number; visible: boolean }> = {};
-      const activeStage = AUTOMOTIVE_STAGES[currentStageIndexRef.current];
+      const activeChapter = AUTOMOTIVE_CHAPTERS[currentChapterIndexRef.current];
 
-      if (activeStage && activeStage.hotspotIds) {
-        activeStage.hotspotIds.forEach((id) => {
-          const hotspot = COMPONENT_HOTSPOTS[id];
-          if (!hotspot) return;
+      if (activeChapter && activeChapter.calloutIds) {
+        activeChapter.calloutIds.forEach((id) => {
+          const callout = COMPONENT_CALLOUTS[id];
+          if (!callout) return;
 
-          tempVec.set(...hotspot.position3D);
+          tempVec.set(...callout.position3D);
           tempVec.applyMatrix4(carModel.root.matrixWorld);
           tempVec.project(camera);
 
@@ -565,15 +497,12 @@ export const KnowYourCarSection: React.FC<KnowYourCarSectionProps> = ({ onExplor
 
     animate();
 
-    // 10. Responsive Resize Observer
+    // 9. Resize Observer
     const handleResize = () => {
-      const curW = window.innerWidth;
-      setWindowWidth(curW);
       if (!container) return;
-      const w = container.clientWidth || 800;
-      const h = container.clientHeight || 600;
+      const w = container.clientWidth || window.innerWidth;
+      const h = container.clientHeight || window.innerHeight;
       camera.aspect = w / h;
-      camera.fov = curW <= 900 ? 44 : 38;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
       ScrollTrigger.refresh();
@@ -615,278 +544,66 @@ export const KnowYourCarSection: React.FC<KnowYourCarSectionProps> = ({ onExplor
       ref={sectionRef}
       style={{
         position: "relative",
-        background: "var(--bg-primary)",
-        color: "var(--text-white)",
+        width: "100%",
+        background: "#080a0f",
+        color: "#ffffff",
         overflow: "hidden",
-        paddingTop: isMobile ? "clamp(36px, 6vw, 56px)" : 0,
-        paddingBottom: isMobile ? "clamp(36px, 6vw, 56px)" : 0,
       }}
     >
-      {/* Pinned Scroll Container */}
+      {/* Pinned Full-Screen Cinematic Viewport */}
       <div
         ref={pinContainerRef}
         style={{
           width: "100%",
-          height: isMobile ? "auto" : "100vh",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: isMobile ? "flex-start" : "center",
+          height: "100vh",
           position: "relative",
-          padding: isMobile ? "0" : "clamp(12px, 2vw, 24px)",
-          boxSizing: "border-box",
+          overflow: "hidden",
         }}
       >
-        {/* Background Ambient Glows */}
+        {/* Full-Bleed Edge-to-Edge Three.js Canvas */}
         <div
+          ref={canvasMountRef}
           style={{
             position: "absolute",
-            top: "20%",
-            left: "50%",
-            transform: "translateX(-50%)",
-            width: "850px",
-            height: "450px",
-            background: "radial-gradient(circle, rgba(255, 229, 0, 0.07) 0%, rgba(8, 9, 12, 0) 70%)",
-            filter: "blur(60px)",
-            pointerEvents: "none",
+            inset: 0,
+            width: "100%",
+            height: "100%",
             zIndex: 1,
           }}
         />
 
-        {/* Top Section Header Banner */}
-        <div
-          style={{
-            position: isMobile ? "relative" : "absolute",
-            top: isMobile ? 0 : "clamp(14px, 2.5vw, 28px)",
-            left: isMobile ? 0 : "clamp(20px, 3.5vw, 40px)",
-            zIndex: 10,
-            maxWidth: isMobile ? "100%" : "600px",
-            marginBottom: isMobile ? "18px" : 0,
-            padding: isMobile ? "0 18px" : 0,
-            pointerEvents: isMobile ? "auto" : "none",
-          }}
-        >
-          <div
-            className="section-tag"
-            style={{
-              marginBottom: "8px",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "8px",
-            }}
-          >
-            <span
-              style={{
-                width: "8px",
-                height: "8px",
-                borderRadius: "50%",
-                background: "var(--accent-yellow)",
-                boxShadow: "0 0 10px var(--accent-yellow)",
-              }}
-            />
-            STEP INSIDE YOUR FIRST DRIVING LESSON
-          </div>
-          <h2
-            style={{
-              fontSize: "clamp(1.2rem, 2.5vw, 2rem)",
-              fontWeight: 900,
-              textTransform: "uppercase",
-              letterSpacing: "-0.02em",
-              margin: 0,
-              color: "var(--text-white)",
-            }}
-          >
-            KNOW YOUR WAGONR BEFORE YOU DRIVE.
-          </h2>
-          <p
-            style={{
-              fontSize: "clamp(0.78rem, 1.2vw, 0.92rem)",
-              color: "var(--text-muted)",
-              margin: "4px 0 0",
-            }}
-          >
-            Every control has a purpose. Every pedal has a technique. Explore India's #1 driving-school training car.
-          </p>
-        </div>
+        {/* Floating Minimalist 3D Leader-Line Callout Pins */}
+        <InteractiveCallouts
+          calloutIds={currentChapter.calloutIds}
+          screenPositions={screenPositions}
+          selectedCalloutId={selectedCallout?.id || null}
+          onSelectCallout={handleSelectCallout}
+        />
 
-        {/* Main Showcase Grid */}
-        <div
-          className="container"
-          style={{
-            height: isMobile ? "auto" : "100%",
-            display: "grid",
-            gridTemplateColumns: isMobile
-              ? "1fr"
-              : isTablet
-              ? "1.05fr 0.95fr"
-              : "1.15fr 1fr",
-            gap: isMobile ? "16px" : "clamp(16px, 2.5vw, 32px)",
-            alignItems: isMobile ? "stretch" : "center",
-            position: "relative",
-            zIndex: 5,
-            paddingTop: isMobile ? 0 : "clamp(80px, 12vh, 100px)",
-          }}
-        >
-          {/* Left Column: Interactive 3D Canvas */}
-          <div
-            style={{
-              position: "relative",
-              width: "100%",
-              height: isMobile ? "clamp(260px, 40vh, 340px)" : "clamp(340px, 58vh, 680px)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              borderRadius: isMobile ? "18px" : "24px",
-              overflow: "hidden",
-              border: isMobile ? "1px solid rgba(255, 255, 255, 0.08)" : "none",
-              background: isMobile ? "rgba(10, 13, 20, 0.75)" : "transparent",
-            }}
-          >
-            {/* Three.js Canvas Container */}
-            <div
-              ref={canvasMountRef}
-              style={{
-                width: "100%",
-                height: "100%",
-                position: "absolute",
-                inset: 0,
-              }}
-            />
-
-            {/* 3D Interactive Hotspot Halos */}
-            <InteractiveHotspots
-              hotspotIds={currentStage.hotspotIds}
-              screenPositions={screenPositions}
-              selectedHotspotId={selectedHotspot?.id || null}
-              onSelectHotspot={handleSelectHotspot}
-            />
-
-            {/* Drag 360 Indicator */}
-            <div
-              style={{
-                position: "absolute",
-                top: "14px",
-                right: "14px",
-                fontFamily: "var(--font-mono)",
-                fontSize: "0.68rem",
-                color: "var(--text-dim)",
-                background: "rgba(10, 13, 20, 0.75)",
-                padding: "4px 10px",
-                borderRadius: "var(--radius-full)",
-                border: "1px solid rgba(255, 255, 255, 0.08)",
-                pointerEvents: "none",
-                zIndex: 10,
-              }}
-            >
-              ✦ DRAG TO ROTATE 360°
-            </div>
-
-            {/* Mobile Quick Stage Nav Arrows */}
-            {isMobile && (
-              <>
-                <button
-                  onClick={() => goToStage(currentStageIndex - 1)}
-                  disabled={currentStageIndex === 0}
-                  aria-label="Previous learning stage"
-                  style={{
-                    position: "absolute",
-                    left: "10px",
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    width: "36px",
-                    height: "36px",
-                    borderRadius: "50%",
-                    background: "rgba(10, 13, 20, 0.8)",
-                    border: "1px solid rgba(255, 255, 255, 0.2)",
-                    color: currentStageIndex === 0 ? "var(--text-dim)" : "var(--accent-yellow)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    cursor: currentStageIndex === 0 ? "not-allowed" : "pointer",
-                    zIndex: 20,
-                    opacity: currentStageIndex === 0 ? 0.3 : 1,
-                  }}
-                >
-                  <ChevronLeft size={20} />
-                </button>
-
-                <button
-                  onClick={() => goToStage(currentStageIndex + 1)}
-                  disabled={currentStageIndex === AUTOMOTIVE_STAGES.length - 1}
-                  aria-label="Next learning stage"
-                  style={{
-                    position: "absolute",
-                    right: "10px",
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    width: "36px",
-                    height: "36px",
-                    borderRadius: "50%",
-                    background: "rgba(10, 13, 20, 0.8)",
-                    border: "1px solid rgba(255, 255, 255, 0.2)",
-                    color:
-                      currentStageIndex === AUTOMOTIVE_STAGES.length - 1
-                        ? "var(--text-dim)"
-                        : "var(--accent-yellow)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    cursor:
-                      currentStageIndex === AUTOMOTIVE_STAGES.length - 1
-                        ? "not-allowed"
-                        : "pointer",
-                    zIndex: 20,
-                    opacity: currentStageIndex === AUTOMOTIVE_STAGES.length - 1 ? 0.3 : 1,
-                  }}
-                >
-                  <ChevronRight size={20} />
-                </button>
-              </>
-            )}
-          </div>
-
-          {/* Right Column: Educational Information Panel */}
-          <div
-            style={{
-              position: "relative",
-              width: "100%",
-              height: isMobile ? "auto" : "clamp(340px, 58vh, 680px)",
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            <EducationalPanel
-              currentStage={currentStage}
-              selectedHotspot={selectedHotspot}
-              onSelectHotspot={handleSelectHotspot}
-              onPrevStage={() => goToStage(currentStageIndex - 1)}
-              onNextStage={() => goToStage(currentStageIndex + 1)}
-              onSelectStage={(idx) => goToStage(idx)}
-              onOpenManualMode={() => setIsManualModalOpen(true)}
-              onExploreCourses={onExploreCourses}
-              steeringAngle={steeringAngle}
-              onSetSteeringAngle={setSteeringAngle}
-              pedalsState={pedalsState}
-              onTogglePedal={handleTogglePedal}
-              gearPosition={gearPosition}
-              onSelectGear={setGearPosition}
-              lightsState={lightsState}
-              onToggleLight={handleToggleLight}
-              checklistState={checklistState}
-              onToggleChecklistItem={handleToggleChecklistItem}
-            />
-          </div>
-        </div>
+        {/* Floating Minimalist Heads-Up Display (HUD) & Controls */}
+        <CockpitHudControls
+          currentChapter={currentChapter}
+          selectedCallout={selectedCallout}
+          onSelectCallout={handleSelectCallout}
+          onPrevChapter={() => goToChapter(currentChapterIndex - 1)}
+          onNextChapter={() => goToChapter(currentChapterIndex + 1)}
+          onSelectChapter={goToChapter}
+          onResetCamera={handleResetCamera}
+          onExploreCourses={onExploreCourses}
+          steeringAngle={steeringAngle}
+          onSetSteeringAngle={setSteeringAngle}
+          steeringExploded={steeringExploded}
+          onToggleSteeringExplode={handleToggleSteeringExplode}
+          gearPosition={gearPosition}
+          onSelectGear={setGearPosition}
+          pedalsState={pedalsState}
+          onTogglePedal={handleTogglePedal}
+          handbrakeEngaged={handbrakeEngaged}
+          onToggleHandbrake={handleToggleHandbrake}
+          dashboardState={dashboardState}
+          onToggleDashboardSwitch={handleToggleDashboardSwitch}
+        />
       </div>
-
-      {/* Manual Exploration Simulator Modal Overlay */}
-      <ManualExplorationModal
-        isOpen={isManualModalOpen}
-        onClose={() => setIsManualModalOpen(false)}
-        onSelectPresetView={handleSelectPresetView}
-        onResetCamera={handleResetCamera}
-        onSelectHotspot={handleSelectHotspot}
-        selectedHotspot={selectedHotspot}
-      />
     </section>
   );
 };

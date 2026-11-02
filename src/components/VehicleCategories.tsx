@@ -1,65 +1,16 @@
 import React from "react";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
-import type { VehicleCategory } from "../types";
+import { SITE_DATA } from "../config/siteData";
 
 interface VehicleCategoriesProps {
-  onSelectCategory: (categoryName: string) => void;
+  onSelectCategory: (categoryId: string) => void;
 }
 
 export const VehicleCategories: React.FC<VehicleCategoriesProps> = ({ onSelectCategory }) => {
-  const categories: VehicleCategory[] = [
-    {
-      id: "two-wheelers",
-      name: "TWO-WHEELERS",
-      tagline: "Agility, Balance & Safe Riding Fundamentals",
-      types: ["Scooty (Gearless)", "Motorcycle / Bike (Geared)", "Commuter & Sports"],
-      description:
-        "Learn balance, control, braking, turning, and safe road riding. Designed for first-time riders to develop rock-solid confidence in city traffic, slope starts, and defensive riding.",
-      image: "/images/two_wheelers.jpg",
-      highlights: [
-        "Clutch-throttle sync & smooth progressive gear shifting",
-        "Front & rear combined brake modulation technique",
-        "Slow-speed slalom balance and tight U-turn maneuvering",
-        "Blind-spot mirror observation & defensive helmet discipline",
-      ],
-      badge: "CLASS 1: 2W",
-    },
-    {
-      id: "four-wheelers",
-      name: "FOUR-WHEELERS",
-      tagline: "Precision Steering, Clutch Mastery & Road Confidence",
-      types: ["Hatchback", "Sedan", "SUV & Modern Cars"],
-      description:
-        "Learn steering, clutch control, gears, parking, reversing, and road driving. Train on dual-control vehicles with experienced instructors covering daily traffic and highway conditions.",
-      image: "/images/four_wheelers.jpg",
-      highlights: [
-        "Half-clutch biting point & anti-stall hill start technique",
-        "Precision parallel, angular, and 90-degree bay parking",
-        "Mastering 3-point turns and high-accuracy reverse slalom",
-        "Highway lane navigation, speed discipline, and overtaking etiquette",
-      ],
-      badge: "CLASS 2: LMV",
-    },
-    {
-      id: "heavy-vehicles",
-      name: "HEAVY VEHICLES",
-      tagline: "Commercial Rig Control, Load Dynamics & Highway Safety",
-      types: ["Lorry", "Heavy Truck", "Commercial Transport Vehicles"],
-      description:
-        "Understand vehicle handling, road awareness, turning radius, braking, and heavy-vehicle driving fundamentals. Specialized commercial curriculum for career drivers.",
-      image: "/images/heavy_vehicles.jpg",
-      highlights: [
-        "Wide turning sweep calculations & rear overhang swing awareness",
-        "Pneumatic air brake dynamics & safe thermal brake management",
-        "Heavy vehicle blind-spot mitigation & mirror positioning",
-        "Commercial vehicle road rules, night highway driving & weight balance",
-      ],
-      badge: "CLASS 3: HMV",
-    },
-  ];
+  const categories = SITE_DATA.vehicles;
 
   return (
-    <section id="vehicles" className="section-spacing" style={{ backgroundColor: "var(--bg-secondary)" }}>
+    <section id="vehicles" className="section-spacing" style={{ backgroundColor: "var(--bg-secondary)", position: "relative" }}>
       {/* Background radial accent */}
       <div
         style={{
@@ -68,7 +19,7 @@ export const VehicleCategories: React.FC<VehicleCategoriesProps> = ({ onSelectCa
           right: 0,
           width: "500px",
           height: "500px",
-          background: "radial-gradient(circle, rgba(255, 229, 0, 0.03) 0%, transparent 70%)",
+          background: "radial-gradient(circle, rgba(255, 229, 0, 0.04) 0%, transparent 70%)",
           pointerEvents: "none",
         }}
       />
@@ -76,19 +27,19 @@ export const VehicleCategories: React.FC<VehicleCategoriesProps> = ({ onSelectCa
       <div className="container">
         {/* Section Header */}
         <div className="section-header">
-          <div className="section-tag">FLEET & DISCIPLINES</div>
-          <h2 className="section-title">ONE SCHOOL. EVERY KIND OF DRIVE.</h2>
+          <div className="section-tag">CERTIFIED TRAINING DISCIPLINES</div>
+          <h2 className="section-title">ONE ACADEMY. EVERY CATEGORY OF DRIVE.</h2>
           <p className="section-subtitle">
-            Whether you are stepping onto two wheels for the first time, mastering car driving for
-            everyday independence, or training for a professional heavy-vehicle career.
+            Whether mastering two-wheel balance, developing complete four-wheel passenger car mastery,
+            or advancing to professional medium goods transport.
           </p>
         </div>
 
-        {/* 3 Large Vehicle Interactive Cards */}
+        {/* 3 Large Vehicle Interactive Cards: 2 Wheelers, 4 Wheelers, MGV */}
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 300px), 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 310px), 1fr))",
             gap: "clamp(20px, 3vw, 28px)",
           }}
         >
@@ -121,7 +72,7 @@ export const VehicleCategories: React.FC<VehicleCategoriesProps> = ({ onSelectCa
                 style={{
                   position: "relative",
                   width: "100%",
-                  height: "clamp(180px, 44vw, 230px)",
+                  height: "clamp(190px, 44vw, 230px)",
                   overflow: "hidden",
                   backgroundColor: "#000",
                 }}
@@ -144,65 +95,36 @@ export const VehicleCategories: React.FC<VehicleCategoriesProps> = ({ onSelectCa
                   style={{
                     position: "absolute",
                     inset: 0,
-                    background: "linear-gradient(180deg, rgba(8, 9, 12, 0.2) 0%, rgba(8, 9, 12, 0.9) 100%)",
+                    background: "linear-gradient(180deg, rgba(8, 9, 12, 0.15) 0%, rgba(8, 9, 12, 0.9) 100%)",
                   }}
                 />
 
-                {/* Class Badge */}
+                {/* Badge Overlay */}
                 <div
                   style={{
                     position: "absolute",
                     top: "14px",
                     left: "14px",
-                    fontFamily: "var(--font-mono)",
-                    fontSize: "0.72rem",
-                    fontWeight: 700,
-                    background: "rgba(8, 9, 12, 0.8)",
+                    background: "rgba(10, 12, 18, 0.85)",
                     backdropFilter: "blur(8px)",
-                    border: "1px solid rgba(255, 229, 0, 0.35)",
+                    border: "1px solid rgba(255, 229, 0, 0.4)",
                     color: "var(--accent-yellow)",
                     padding: "4px 10px",
                     borderRadius: "var(--radius-sm)",
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "0.72rem",
+                    fontWeight: 700,
+                    letterSpacing: "0.08em",
                   }}
                 >
                   {cat.badge}
-                </div>
-
-                {/* Sub-types pills at bottom of image */}
-                <div
-                  style={{
-                    position: "absolute",
-                    bottom: "12px",
-                    left: "14px",
-                    right: "14px",
-                    display: "flex",
-                    flexWrap: "wrap",
-                    gap: "6px",
-                  }}
-                >
-                  {cat.types.map((t, i) => (
-                    <span
-                      key={i}
-                      style={{
-                        fontFamily: "var(--font-mono)",
-                        fontSize: "0.68rem",
-                        background: "rgba(0, 0, 0, 0.75)",
-                        border: "1px solid rgba(255, 255, 255, 0.15)",
-                        color: "var(--text-white)",
-                        padding: "2px 8px",
-                        borderRadius: "4px",
-                      }}
-                    >
-                      {t}
-                    </span>
-                  ))}
                 </div>
               </div>
 
               {/* Card Body */}
               <div
                 style={{
-                  padding: "24px",
+                  padding: "clamp(20px, 3.5vw, 28px)",
                   display: "flex",
                   flexDirection: "column",
                   flexGrow: 1,
@@ -212,21 +134,23 @@ export const VehicleCategories: React.FC<VehicleCategoriesProps> = ({ onSelectCa
                 <div>
                   <h3
                     style={{
-                      fontSize: "1.45rem",
+                      fontSize: "clamp(1.2rem, 3.2vw, 1.38rem)",
                       fontWeight: 800,
                       color: "var(--text-white)",
                       marginBottom: "6px",
+                      letterSpacing: "0.02em",
                     }}
                   >
                     {cat.name}
                   </h3>
+
                   <div
                     style={{
-                      fontSize: "0.85rem",
                       color: "var(--accent-yellow)",
-                      fontFamily: "var(--font-display)",
+                      fontSize: "0.82rem",
                       fontWeight: 600,
-                      marginBottom: "14px",
+                      marginBottom: "12px",
+                      fontFamily: "var(--font-display)",
                     }}
                   >
                     {cat.tagline}
@@ -234,60 +158,93 @@ export const VehicleCategories: React.FC<VehicleCategoriesProps> = ({ onSelectCa
 
                   <p
                     style={{
-                      fontSize: "0.92rem",
+                      fontSize: "0.88rem",
                       color: "var(--text-body)",
-                      lineHeight: 1.55,
-                      marginBottom: "20px",
+                      lineHeight: 1.6,
+                      marginBottom: "18px",
                     }}
                   >
                     {cat.description}
                   </p>
 
-                  {/* Highlights checklist */}
+                  {/* Vehicle Types Included Tags */}
+                  <div
+                    style={{
+                      display: "flex",
+                      flexWrap: "wrap",
+                      gap: "6px",
+                      marginBottom: "18px",
+                    }}
+                  >
+                    {cat.types.map((type) => (
+                      <span
+                        key={type}
+                        style={{
+                          fontSize: "0.74rem",
+                          background: "rgba(255, 255, 255, 0.05)",
+                          color: "var(--text-muted)",
+                          border: "1px solid rgba(255, 255, 255, 0.08)",
+                          padding: "3px 8px",
+                          borderRadius: "4px",
+                        }}
+                      >
+                        {type}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Key Syllabus Highlights */}
                   <div
                     style={{
                       display: "flex",
                       flexDirection: "column",
-                      gap: "10px",
-                      marginBottom: "26px",
+                      gap: "9px",
+                      marginBottom: "24px",
+                      borderTop: "1px solid rgba(255, 255, 255, 0.06)",
+                      paddingTop: "14px",
                     }}
                   >
-                    {cat.highlights.map((h, i) => (
+                    {cat.highlights.map((highlight) => (
                       <div
-                        key={i}
+                        key={highlight}
                         style={{
                           display: "flex",
                           alignItems: "flex-start",
-                          gap: "10px",
-                          fontSize: "0.84rem",
-                          color: "var(--text-body)",
-                          lineHeight: 1.4,
+                          gap: "8px",
+                          fontSize: "0.82rem",
+                          color: "var(--text-muted)",
+                          lineHeight: 1.45,
                         }}
                       >
                         <CheckCircle2
-                          size={15}
+                          size={14}
                           color="var(--accent-yellow)"
-                          style={{ marginTop: "2px", flexShrink: 0 }}
+                          style={{ flexShrink: 0, marginTop: "2px" }}
                         />
-                        <span>{h}</span>
+                        <span>{highlight}</span>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                {/* Card CTA */}
+                {/* Explore Pricing CTA */}
                 <button
-                  onClick={() => onSelectCategory(cat.name)}
-                  className="btn btn-outline-yellow"
+                  type="button"
+                  onClick={() => onSelectCategory(cat.id)}
+                  className="btn btn-secondary"
                   style={{
                     width: "100%",
-                    padding: "12px 20px",
-                    fontSize: "0.88rem",
-                    justifyContent: "space-between",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "8px",
+                    padding: "12px",
+                    fontSize: "0.86rem",
+                    cursor: "pointer",
                   }}
                 >
-                  <span>Explore Courses</span>
-                  <ArrowRight size={16} />
+                  <span>Explore Training & Pricing</span>
+                  <ArrowRight size={15} />
                 </button>
               </div>
             </div>

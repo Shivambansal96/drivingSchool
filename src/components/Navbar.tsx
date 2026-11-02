@@ -1,17 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { Menu, X, MessageSquare, ChevronRight, Globe } from "lucide-react";
+import { Menu, X, MessageSquare, ChevronRight, Globe, Award, Home, PhoneCall } from "lucide-react";
 import { createWhatsAppLink } from "../config/contact";
 import { SUPPORTED_LANGUAGES } from "../config/languages";
+import { SITE_DATA } from "../config/siteData";
+
+export type AppPage = "home" | "owner" | "contact";
 
 interface NavbarProps {
-  activeSection: string;
+  currentPage: AppPage;
+  onNavigate: (page: AppPage) => void;
   onOpenTranslateModal: () => void;
   currentLanguage: string;
   isGuideActive?: boolean;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
-  activeSection,
+  currentPage,
+  onNavigate,
   onOpenTranslateModal,
   currentLanguage,
   isGuideActive = false,
@@ -21,7 +26,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 40);
+      setScrolled(window.scrollY > 30);
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
@@ -39,31 +44,17 @@ export const Navbar: React.FC<NavbarProps> = ({
     };
   }, [mobileMenuOpen]);
 
-  const navLinks = [
-    { name: "Home", href: "#home", id: "home" },
-    { name: "Know Your Car", href: "#know-your-car", id: "know-your-car" },
-    { name: "Vehicles", href: "#vehicles", id: "vehicles" },
-    { name: "Courses & Pricing", href: "#pricing", id: "pricing" },
-    { name: "Timings", href: "#schedule", id: "schedule" },
-    { name: "Licence Assistance", href: "#licence", id: "licence" },
-    { name: "Traffic Rules", href: "#traffic-rules", id: "traffic-rules" },
-    { name: "Gallery", href: "#gallery", id: "gallery" },
-    { name: "Contact", href: "#contact", id: "contact" },
+  const navPages: { id: AppPage; name: string; href: string; icon: React.ReactNode }[] = [
+    { id: "home", name: "Home", href: "#/", icon: <Home size={15} /> },
+    { id: "owner", name: "Owner", href: "#/owner", icon: <Award size={15} /> },
+    { id: "contact", name: "Contact", href: "#/contact", icon: <PhoneCall size={15} /> },
   ];
 
-  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+  const handleNavClick = (e: React.MouseEvent, pageId: AppPage) => {
     e.preventDefault();
     setMobileMenuOpen(false);
-    const target = document.querySelector(href);
-    if (target) {
-      const headerOffset = 80;
-      const elementPosition = target.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: "smooth",
-      });
-    }
+    onNavigate(pageId);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
@@ -77,8 +68,8 @@ export const Navbar: React.FC<NavbarProps> = ({
           zIndex: 1000,
           height: "var(--header-height)",
           background: scrolled
-            ? "rgba(8, 9, 12, 0.92)"
-            : "linear-gradient(180deg, rgba(8,9,12,0.85) 0%, rgba(8,9,12,0.2) 100%)",
+            ? "rgba(8, 9, 12, 0.94)"
+            : "linear-gradient(180deg, rgba(8,9,12,0.9) 0%, rgba(8,9,12,0.3) 100%)",
           backdropFilter: "blur(18px)",
           WebkitBackdropFilter: "blur(18px)",
           borderBottom: scrolled
@@ -99,8 +90,8 @@ export const Navbar: React.FC<NavbarProps> = ({
         >
           {/* Brand Logo & Name */}
           <a
-            href="#home"
-            onClick={(e) => handleNavClick(e, "#home")}
+            href="#/"
+            onClick={(e) => handleNavClick(e, "home")}
             style={{
               display: "flex",
               alignItems: "center",
@@ -108,7 +99,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               textDecoration: "none",
             }}
           >
-            {/* Steering Wheel / Crest Emblem */}
+            {/* Steering Wheel Emblem */}
             <div
               style={{
                 width: "clamp(34px, 4.5vw, 42px)",
@@ -173,33 +164,43 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
           </a>
 
-          {/* Desktop Navigation Links */}
+          {/* Desktop Navigation Links: Exactly 3 Pages (Home, Owner, Contact) */}
           <nav
             style={{
               display: "flex",
               alignItems: "center",
-              gap: "24px",
+              gap: "28px",
             }}
             className="hide-on-mobile"
           >
-            {navLinks.map((link) => {
-              const isActive = activeSection === link.id;
+            {navPages.map((link) => {
+              const isActive = currentPage === link.id;
               return (
                 <a
                   key={link.id}
                   href={link.href}
-                  onClick={(e) => handleNavClick(e, link.href)}
+                  onClick={(e) => handleNavClick(e, link.id)}
                   style={{
                     fontFamily: "var(--font-display)",
-                    fontSize: "0.88rem",
-                    fontWeight: isActive ? 700 : 500,
+                    fontSize: "0.94rem",
+                    fontWeight: isActive ? 800 : 500,
                     color: isActive ? "var(--accent-yellow)" : "var(--text-body)",
                     transition: "all 0.2s ease",
                     position: "relative",
-                    padding: "6px 0",
+                    padding: "8px 0",
+                    textDecoration: "none",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isActive) e.currentTarget.style.color = "var(--text-white)";
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isActive) e.currentTarget.style.color = "var(--text-body)";
                   }}
                 >
-                  {link.name}
+                  <span>{link.name}</span>
                   {isActive && (
                     <span
                       style={{
@@ -207,9 +208,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                         bottom: 0,
                         left: 0,
                         right: 0,
-                        height: "2px",
+                        height: "2.5px",
                         background: "var(--accent-yellow)",
-                        boxShadow: "0 0 8px var(--accent-yellow)",
+                        boxShadow: "0 0 10px var(--accent-yellow)",
                         borderRadius: "2px",
                       }}
                     />
@@ -270,26 +271,35 @@ export const Navbar: React.FC<NavbarProps> = ({
               }}
             >
               <Globe size={16} />
-              <span>{currentLanguage !== "en" ? SUPPORTED_LANGUAGES.find((l) => l.code === currentLanguage)?.name || "Translate" : "Translate"}</span>
+              <span>
+                {currentLanguage !== "en"
+                  ? SUPPORTED_LANGUAGES.find((l) => l.code === currentLanguage)?.name || "Translate"
+                  : "Translate"}
+              </span>
             </button>
 
+            {/* Enquire Now CTA */}
             <a
               href={createWhatsAppLink()}
               target="_blank"
               rel="noopener noreferrer"
               className="btn btn-primary"
               style={{
-                padding: "9px 18px",
+                padding: "9px 20px",
                 fontSize: "0.84rem",
                 borderRadius: "var(--radius-full)",
+                textDecoration: "none",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
               }}
             >
               <MessageSquare size={15} />
-              Enquire Now
+              <span>Enquire Now</span>
             </a>
           </div>
 
-          {/* Mobile Right Controls: Quick Translate & Hamburger */}
+          {/* Mobile Right Controls: Translate & Hamburger */}
           <div
             className="show-on-mobile-only"
             style={{
@@ -308,10 +318,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                 alignItems: "center",
                 justifyContent: "center",
                 gap: "6px",
-                padding: "8px 14px",
-                minHeight: "44px",
-                minWidth: "44px",
-                boxSizing: "border-box",
+                padding: "8px 12px",
+                minHeight: "40px",
                 borderRadius: "var(--radius-full)",
                 background:
                   currentLanguage !== "en"
@@ -325,7 +333,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 cursor: "pointer",
               }}
             >
-              <Globe size={16} />
+              <Globe size={15} />
               <span className="mobile-translate-label">
                 {currentLanguage !== "en"
                   ? SUPPORTED_LANGUAGES.find((l) => l.code === currentLanguage)?.name || "Translate"
@@ -338,10 +346,9 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label="Toggle navigation menu"
               style={{
-                padding: "10px",
-                minHeight: "44px",
-                minWidth: "44px",
-                boxSizing: "border-box",
+                padding: "8px 10px",
+                minHeight: "40px",
+                minWidth: "40px",
                 color: "var(--text-white)",
                 display: "flex",
                 alignItems: "center",
@@ -371,15 +378,15 @@ export const Navbar: React.FC<NavbarProps> = ({
             backdropFilter: "blur(24px)",
             WebkitBackdropFilter: "blur(24px)",
             zIndex: 1200,
-            padding: "20px 24px",
+            padding: "24px 20px",
             display: "flex",
             flexDirection: "column",
             justifyContent: "space-between",
             overflowY: "auto",
           }}
         >
-          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            {/* Prominent Translate Card in Mobile Menu */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+            {/* Prominent Translate Card */}
             <button
               onClick={() => {
                 setMobileMenuOpen(false);
@@ -389,7 +396,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                padding: "13px 16px",
+                padding: "14px 16px",
                 borderRadius: "var(--radius-md)",
                 background: "linear-gradient(135deg, rgba(255, 229, 0, 0.16) 0%, rgba(255, 229, 0, 0.04) 100%)",
                 border: "1.5px solid var(--accent-yellow)",
@@ -412,66 +419,65 @@ export const Navbar: React.FC<NavbarProps> = ({
               </div>
             </button>
 
-            {navLinks.map((link) => (
-              <a
-                key={link.id}
-                href={link.href}
-                onClick={(e) => handleNavClick(e, link.href)}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  padding: "14px 16px",
-                  borderRadius: "var(--radius-md)",
-                  background:
-                    activeSection === link.id
-                      ? "rgba(255, 229, 0, 0.12)"
-                      : "rgba(255, 255, 255, 0.03)",
-                  border:
-                    activeSection === link.id
-                      ? "1px solid rgba(255, 229, 0, 0.3)"
-                      : "1px solid rgba(255, 255, 255, 0.05)",
-                  color: activeSection === link.id ? "var(--accent-yellow)" : "var(--text-white)",
-                  fontFamily: "var(--font-display)",
-                  fontSize: "1.05rem",
-                  fontWeight: 600,
-                  textDecoration: "none",
-                }}
-              >
-                <span>{link.name}</span>
-                <ChevronRight size={18} color="var(--text-muted)" />
-              </a>
-            ))}
+            {/* Exactly 3 Page Links for Mobile */}
+            {navPages.map((link) => {
+              const isActive = currentPage === link.id;
+              return (
+                <a
+                  key={link.id}
+                  href={link.href}
+                  onClick={(e) => handleNavClick(e, link.id)}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    padding: "16px 18px",
+                    borderRadius: "var(--radius-md)",
+                    background: isActive ? "rgba(255, 229, 0, 0.1)" : "rgba(255, 255, 255, 0.03)",
+                    border: isActive ? "1px solid var(--accent-yellow)" : "1px solid rgba(255, 255, 255, 0.08)",
+                    color: isActive ? "var(--accent-yellow)" : "var(--text-white)",
+                    fontFamily: "var(--font-display)",
+                    fontSize: "1.05rem",
+                    fontWeight: isActive ? 800 : 600,
+                    textDecoration: "none",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                    {link.icon}
+                    <span>{link.name} Page</span>
+                  </div>
+                  <ChevronRight size={18} color={isActive ? "var(--accent-yellow)" : "var(--text-dim)"} />
+                </a>
+              );
+            })}
           </div>
 
-          <div
-            style={{
-              paddingTop: "24px",
-              borderTop: "1px solid rgba(255, 255, 255, 0.1)",
-              display: "flex",
-              flexDirection: "column",
-              gap: "12px",
-            }}
-          >
+          {/* Mobile Drawer Bottom Info & WhatsApp CTA */}
+          <div style={{ borderTop: "1px solid rgba(255, 255, 255, 0.08)", paddingTop: "20px" }}>
             <a
               href={createWhatsAppLink()}
               target="_blank"
               rel="noopener noreferrer"
               className="btn btn-whatsapp"
-              style={{ width: "100%", padding: "14px", borderRadius: "var(--radius-md)" }}
-            >
-              <MessageSquare size={18} />
-              Chat on WhatsApp
-            </a>
-            <div
               style={{
-                fontFamily: "var(--font-mono)",
-                fontSize: "0.75rem",
-                color: "var(--text-dim)",
-                textAlign: "center",
+                width: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "10px",
+                padding: "14px",
+                fontSize: "0.95rem",
+                borderRadius: "var(--radius-full)",
+                textDecoration: "none",
+                marginBottom: "14px",
               }}
             >
-              Morning Batches 06:00 AM – 09:00 AM • Sunday Closed
+              <MessageSquare size={18} />
+              <span>Enquire on WhatsApp</span>
+            </a>
+
+            <div style={{ textAlign: "center", fontSize: "0.78rem", color: "var(--text-dim)" }}>
+              {SITE_DATA.contact.phoneDisplay} • {SITE_DATA.contact.address}
             </div>
           </div>
         </div>

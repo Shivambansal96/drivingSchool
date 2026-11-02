@@ -1,17 +1,9 @@
 import { useState, useEffect } from "react";
 import { MessageSquare } from "lucide-react";
-import { Navbar } from "./components/Navbar";
-import { Hero } from "./components/Hero";
-import { VehicleCategories } from "./components/VehicleCategories";
-import { Pricing } from "./components/Pricing";
-import { DailySchedule } from "./components/DailySchedule";
-import { LicenceAssistance } from "./components/LicenceAssistance";
-import { TrafficRules } from "./components/TrafficRules";
-import { WhyChooseUs } from "./components/WhyChooseUs";
-import { Gallery } from "./components/Gallery";
-import { ContactSection } from "./components/ContactSection";
-import { Footer } from "./components/Footer";
-import { KnowYourCarSection } from "./components/know-your-car/KnowYourCarSection";
+import { Navbar, type AppPage } from "./components/Navbar";
+import { HomePage } from "./pages/HomePage";
+import { OwnerPage } from "./pages/OwnerPage";
+import { ContactPage } from "./pages/ContactPage";
 import { LanguageSelectorModal } from "./components/LanguageSelectorModal";
 import { FirstVisitTranslationGuide } from "./components/FirstVisitTranslationGuide";
 import { createWhatsAppLink } from "./config/contact";
@@ -24,17 +16,35 @@ import {
 } from "./config/languages";
 
 export function App() {
-  const [activeSection, setActiveSection] = useState<string>("home");
-  const [selectedVehicleCategory, setSelectedVehicleCategory] = useState<string | undefined>(undefined);
+  // Page Routing: "home" | "owner" | "contact"
+  const getPageFromHash = (): AppPage => {
+    const hash = window.location.hash.toLowerCase();
+    if (hash.includes("owner")) return "owner";
+    if (hash.includes("contact")) return "contact";
+    return "home";
+  };
+
+  const [currentPage, setCurrentPage] = useState<AppPage>(getPageFromHash());
   const [isTranslateModalOpen, setIsTranslateModalOpen] = useState<boolean>(false);
   const [currentLanguage, setCurrentLanguage] = useState<string>(getSavedLanguage());
   const [showFirstVisitGuide, setShowFirstVisitGuide] = useState<boolean>(false);
 
-  // Initialize saved translation preference and first-visit guide
+  // Sync hash changes (browser back/forward buttons, direct URLs)
+  useEffect(() => {
+    const handleHashChange = () => {
+      const newPage = getPageFromHash();
+      setCurrentPage(newPage);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, []);
+
+  // Initialize translation and first-visit guide
   useEffect(() => {
     initializeSavedLanguage();
 
-    // Show guide only for first-time visitors who haven't dismissed it
     if (!isGuideDismissed() && getSavedLanguage() === "en") {
       const timer = setTimeout(() => {
         setShowFirstVisitGuide(true);
@@ -43,56 +53,10 @@ export function App() {
     }
   }, []);
 
-  // Track scroll position to update active navbar link
-  useEffect(() => {
-    const handleScroll = () => {
-      const sections = [
-        "home",
-        "know-your-car",
-        "vehicles",
-        "pricing",
-        "schedule",
-        "licence",
-        "traffic-rules",
-        "gallery",
-        "contact",
-      ];
-
-      const scrollPosition = window.scrollY + 200;
-
-      for (const sectionId of sections) {
-        const el = document.getElementById(sectionId);
-        if (el) {
-          const top = el.offsetTop;
-          const height = el.offsetHeight;
-          if (scrollPosition >= top && scrollPosition < top + height) {
-            setActiveSection(sectionId);
-            break;
-          }
-        }
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  const scrollToSection = (id: string) => {
-    const el = document.getElementById(id);
-    if (el) {
-      const headerOffset = 80;
-      const elementPosition = el.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: "smooth",
-      });
-    }
-  };
-
-  const handleSelectCategory = (catName: string) => {
-    setSelectedVehicleCategory(catName);
-    scrollToSection("pricing");
+  const handleNavigate = (page: AppPage) => {
+    setCurrentPage(page);
+    window.location.hash = page === "home" ? "#/" : `#/${page}`;
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleOpenTranslateModal = () => {
@@ -117,9 +81,10 @@ export function App() {
 
   return (
     <div className="app-root" style={{ minHeight: "100vh", position: "relative" }}>
-      {/* Sticky Navigation with Multi-Language Translation */}
+      {/* Sticky Shared Navigation Bar with Exactly 3 Pages */}
       <Navbar
-        activeSection={activeSection}
+        currentPage={currentPage}
+        onNavigate={handleNavigate}
         onOpenTranslateModal={handleOpenTranslateModal}
         currentLanguage={currentLanguage}
         isGuideActive={showFirstVisitGuide}
@@ -140,41 +105,10 @@ export function App() {
         onLanguageSelect={handleLanguageSelect}
       />
 
-      {/* Hero Section */}
-      <Hero
-        onExploreCourses={() => scrollToSection("pricing")}
-        onContactUs={() => scrollToSection("contact")}
-      />
-
-      {/* Flagship Interactive 3D Automotive Masterclass: Know Your Car Before You Drive */}
-      <KnowYourCarSection onExploreCourses={() => scrollToSection("pricing")} />
-
-      {/* Vehicle Categories */}
-      <VehicleCategories onSelectCategory={handleSelectCategory} />
-
-      {/* Driving Course Pricing */}
-      <Pricing selectedVehicle={selectedVehicleCategory} />
-
-      {/* Daily Training Schedule */}
-      <DailySchedule />
-
-      {/* Driving Licence Assistance */}
-      <LicenceAssistance />
-
-      {/* Traffic Rules & Road Safety */}
-      <TrafficRules />
-
-      {/* Why Choose Us */}
-      <WhyChooseUs />
-
-      {/* Cinematic Gallery */}
-      <Gallery />
-
-      {/* Contact & Enquiry */}
-      <ContactSection />
-
-      {/* Footer */}
-      <Footer />
+      {/* Exactly 3 Separate Pages */}
+      {currentPage === "home" && <HomePage onNavigate={handleNavigate} />}
+      {currentPage === "owner" && <OwnerPage onNavigate={handleNavigate} />}
+      {currentPage === "contact" && <ContactPage onNavigate={handleNavigate} />}
 
       {/* Floating Action Button: Quick WhatsApp Enquire */}
       <aside

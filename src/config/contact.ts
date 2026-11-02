@@ -11,10 +11,10 @@ export const BRAND_CONFIG = {
   description:
     "Comprehensive professional driving academy offering structured 20-day training for Two-Wheelers, Four-Wheelers, and Heavy Commercial Vehicles, with dedicated morning batches and licensing assistance.",
   
-  // Contact details (Configurable placeholders)
-  phoneDisplay: "+91 98765 43210 (Placeholder)",
-  phoneDial: "+919876543210",
-  whatsappNumber: "919876543210", // Format for wa.me URL (country code without '+' or spaces)
+  // Contact details
+  phoneDisplay: "+91 91370 76236",
+  phoneDial: "+919137076236",
+  whatsappNumber: "919137076236", // Format for wa.me URL (country code without '+' or spaces)
   email: "admissions@ghoshmotortraining.example.com",
   
   address: "Sachitra Ghosh Sarani, Haider Para, Siliguri, West Bengal 734006",

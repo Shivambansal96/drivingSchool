@@ -1,52 +1,21 @@
 import React from "react";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Clock, ShieldCheck } from "lucide-react";
 import { createWhatsAppLink } from "../config/contact";
-import type { ScheduleSlot } from "../types";
+import { SITE_DATA } from "../config/siteData";
 
 export const DailySchedule: React.FC = () => {
-  const slots: ScheduleSlot[] = [
-    {
-      id: "slot-1",
-      timeRange: "06:00 AM – 07:00 AM",
-      batchName: "BATCH 01: DAWN PATROL",
-      description:
-        "Quiet, tranquil morning roads with minimal traffic. The ultimate serene atmosphere for complete beginners to master clutch engagement, gear shifts, and smooth steering.",
-      roadCondition: "Zero / Light Traffic",
-      suitableFor: "Complete Beginners & Nervous Starters",
-      iconType: "dawn",
-    },
-    {
-      id: "slot-2",
-      timeRange: "07:00 AM – 08:00 AM",
-      batchName: "BATCH 02: GOLDEN HOUR",
-      description:
-        "Moderate ambient morning traffic and clear daylight. Excellent for developing real-world road observation, intersection etiquette, and lane discipline.",
-      roadCondition: "Mild Morning Flow",
-      suitableFor: "Confidence Building & Intersection Practice",
-      iconType: "sunrise",
-    },
-    {
-      id: "slot-3",
-      timeRange: "08:00 AM – 09:00 AM",
-      batchName: "BATCH 03: CITY FLOW",
-      description:
-        "Simulates active weekday traffic conditions with pedestrian movement and buses. Ideal for advanced learners preparing for everyday office and city commutes.",
-      roadCondition: "Active City Commute Traffic",
-      suitableFor: "Final Phase Learners & City Traffic Mastery",
-      iconType: "morning",
-    },
-  ];
+  const slots = SITE_DATA.schedule.activeSlots;
 
   return (
-    <section id="schedule" className="section-spacing" style={{ backgroundColor: "var(--bg-secondary)" }}>
+    <section id="schedule" className="section-spacing" style={{ backgroundColor: "var(--bg-secondary)", position: "relative" }}>
       <div className="container">
         {/* Section Header */}
         <div className="section-header">
-          <div className="section-tag">CONVENIENT MORNING SESSIONS</div>
-          <h2 className="section-title">YOUR DAY BEHIND THE WHEEL</h2>
+          <div className="section-tag">EARLY MORNING BATCH TIMETABLE</div>
+          <h2 className="section-title">DAILY TRAINING TIMINGS</h2>
           <p className="section-subtitle">
-            Our structured driving sessions run during prime early morning hours to offer optimal road
-            conditions, cooler temperatures, and zero disruption to your daily work or college schedule.
+            Our structured driving sessions run during prime early morning hours to provide clear road
+            conditions, minimal traffic congestion, and zero disruption to your daily work or college schedule.
           </p>
         </div>
 
@@ -56,7 +25,7 @@ export const DailySchedule: React.FC = () => {
             display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 290px), 1fr))",
             gap: "clamp(18px, 3vw, 24px)",
-            marginBottom: "40px",
+            marginBottom: "30px",
           }}
         >
           {slots.map((slot, index) => (
@@ -64,18 +33,29 @@ export const DailySchedule: React.FC = () => {
               key={slot.id}
               className="glass-card"
               style={{
-                padding: "clamp(22px, 3.5vw, 32px) clamp(16px, 3vw, 26px)",
+                padding: "clamp(24px, 3.5vw, 32px) clamp(18px, 3vw, 26px)",
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "space-between",
                 border: "1px solid rgba(255, 255, 255, 0.08)",
                 borderRadius: "var(--radius-lg)",
-                background: "linear-gradient(180deg, rgba(20, 24, 34, 0.8) 0%, rgba(12, 14, 20, 0.95) 100%)",
+                background: "linear-gradient(180deg, rgba(20, 24, 34, 0.85) 0%, rgba(12, 14, 20, 0.95) 100%)",
                 position: "relative",
+                transition: "all 0.3s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "translateY(-4px)";
+                e.currentTarget.style.borderColor = "var(--border-yellow)";
+                e.currentTarget.style.boxShadow = "0 12px 30px rgba(0,0,0,0.7), 0 0 25px rgba(255, 229, 0, 0.1)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.08)";
+                e.currentTarget.style.boxShadow = "var(--shadow-md)";
               }}
             >
               <div>
-                {/* Header with Animated Clock & Badge */}
+                {/* Header with Analog Clock Dial & Batch Tag */}
                 <div
                   style={{
                     display: "flex",
@@ -87,8 +67,8 @@ export const DailySchedule: React.FC = () => {
                   {/* Stylized Analog Clock Visual */}
                   <div
                     style={{
-                      width: "56px",
-                      height: "56px",
+                      width: "52px",
+                      height: "52px",
                       borderRadius: "50%",
                       background: "rgba(10, 13, 20, 0.9)",
                       border: "2px solid var(--accent-yellow)",
@@ -99,8 +79,7 @@ export const DailySchedule: React.FC = () => {
                       boxShadow: "0 0 16px rgba(255, 229, 0, 0.25)",
                     }}
                   >
-                    {/* SVG Clock with Animated Hands */}
-                    <svg width="42" height="42" viewBox="0 0 100 100">
+                    <svg width="38" height="38" viewBox="0 0 100 100">
                       <circle cx="50" cy="50" r="44" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="3" />
                       {/* Hour markers */}
                       {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map((deg) => (
@@ -141,40 +120,55 @@ export const DailySchedule: React.FC = () => {
                     </svg>
                   </div>
 
-                  {/* Batch Tag */}
                   <span
                     style={{
                       fontFamily: "var(--font-mono)",
                       fontSize: "0.72rem",
-                      fontWeight: 700,
+                      fontWeight: 800,
                       color: "var(--accent-yellow)",
                       background: "var(--accent-yellow-dim)",
                       padding: "4px 10px",
                       borderRadius: "var(--radius-sm)",
-                      border: "1px solid rgba(255, 229, 0, 0.25)",
+                      letterSpacing: "0.08em",
                     }}
                   >
-                    {slot.batchName}
+                    SLOT 0{index + 1}
                   </span>
                 </div>
 
-                {/* Time Display */}
-                <h3
+                {/* Exact Time Window */}
+                <div
                   style={{
-                    fontSize: "1.5rem",
-                    fontWeight: 800,
+                    fontSize: "clamp(1.2rem, 3.2vw, 1.45rem)",
+                    fontWeight: 900,
                     color: "var(--text-white)",
-                    marginBottom: "12px",
-                    fontFamily: "var(--font-mono)",
+                    fontFamily: "var(--font-display)",
+                    marginBottom: "4px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
                   }}
                 >
-                  {slot.timeRange}
-                </h3>
+                  <Clock size={18} color="var(--accent-yellow)" />
+                  <span>{slot.timeRange}</span>
+                </div>
 
-                {/* Description */}
+                <div
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "0.76rem",
+                    color: "var(--accent-yellow)",
+                    fontWeight: 700,
+                    marginBottom: "14px",
+                    letterSpacing: "0.05em",
+                  }}
+                >
+                  {slot.batchName}
+                </div>
+
                 <p
                   style={{
-                    fontSize: "0.88rem",
+                    fontSize: "0.86rem",
                     color: "var(--text-body)",
                     lineHeight: 1.55,
                     marginBottom: "20px",
@@ -183,203 +177,106 @@ export const DailySchedule: React.FC = () => {
                   {slot.description}
                 </p>
 
-                {/* Parameters */}
+                {/* Road Condition & Target Learner */}
                 <div
                   style={{
                     display: "flex",
                     flexDirection: "column",
                     gap: "8px",
-                    padding: "12px",
-                    background: "rgba(0, 0, 0, 0.3)",
+                    background: "rgba(255, 255, 255, 0.03)",
+                    padding: "12px 14px",
                     borderRadius: "var(--radius-sm)",
-                    marginBottom: "24px",
-                    fontSize: "0.8rem",
+                    border: "1px solid rgba(255, 255, 255, 0.06)",
+                    fontSize: "0.78rem",
+                    marginBottom: "20px",
                   }}
                 >
                   <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <span style={{ color: "var(--text-muted)" }}>Road Condition:</span>
-                    <span style={{ color: "var(--text-white)", fontWeight: 600 }}>
-                      {slot.roadCondition}
-                    </span>
+                    <span style={{ color: "var(--text-dim)" }}>Road Traffic:</span>
+                    <strong style={{ color: "var(--text-white)" }}>{slot.roadCondition}</strong>
                   </div>
                   <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <span style={{ color: "var(--text-muted)" }}>Recommended:</span>
-                    <span style={{ color: "var(--accent-yellow)", fontWeight: 600 }}>
-                      {slot.suitableFor}
-                    </span>
+                    <span style={{ color: "var(--text-dim)" }}>Ideal For:</span>
+                    <strong style={{ color: "var(--accent-yellow)" }}>{slot.suitableFor}</strong>
                   </div>
                 </div>
               </div>
 
-              {/* Book Your Slot CTA */}
+              {/* Reserve Slot Button */}
               <a
                 href={createWhatsAppLink({
                   timeSlot: slot.timeRange,
-                  type: "slot",
+                  planName: slot.batchName,
                 })}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn btn-secondary"
                 style={{
                   width: "100%",
-                  padding: "12px 16px",
-                  fontSize: "0.86rem",
-                  justifyContent: "space-between",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "6px",
+                  padding: "10px",
+                  fontSize: "0.82rem",
+                  textDecoration: "none",
                 }}
               >
-                <span>Book Your Slot</span>
-                <ArrowRight size={16} />
+                <span>Reserve Morning Slot</span>
+                <ArrowRight size={14} />
               </a>
             </div>
           ))}
         </div>
 
-        {/* Prominent SUNDAY CLOSED Notice with Calendar Visual */}
+        {/* COMPACT SUNDAY BADGE / LINE (Explicit Instruction: Do not give Sunday a large card) */}
         <div
-          className="glass-card"
           style={{
-            padding: "clamp(20px, 3.5vw, 28px) clamp(16px, 3.5vw, 32px)",
-            borderRadius: "var(--radius-xl)",
-            background: "linear-gradient(135deg, rgba(30, 20, 24, 0.85) 0%, rgba(18, 14, 18, 0.95) 100%)",
-            border: "1px solid rgba(239, 68, 68, 0.35)",
-            boxShadow: "0 0 30px rgba(239, 68, 68, 0.12)",
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 84px), 1fr))",
-            gap: "clamp(16px, 3vw, 28px)",
+            maxWidth: "760px",
+            margin: "0 auto",
+            padding: "12px 20px",
+            borderRadius: "var(--radius-md)",
+            background: "rgba(239, 68, 68, 0.08)",
+            border: "1px solid rgba(239, 68, 68, 0.25)",
+            display: "flex",
             alignItems: "center",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: "10px",
           }}
         >
-          {/* Calendar Graphic with Sunday Crossed Out */}
-          <div
-            style={{
-              width: "84px",
-              height: "92px",
-              background: "#0d0f14",
-              borderRadius: "12px",
-              border: "2px solid rgba(239, 68, 68, 0.6)",
-              overflow: "hidden",
-              display: "flex",
-              flexDirection: "column",
-              position: "relative",
-              flexShrink: 0,
-              boxShadow: "0 8px 24px rgba(239, 68, 68, 0.2)",
-            }}
-          >
-            {/* Calendar Header */}
-            <div
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <span
               style={{
-                background: "var(--accent-red)",
-                color: "#ffffff",
                 fontFamily: "var(--font-mono)",
-                fontSize: "0.75rem",
+                fontSize: "0.72rem",
                 fontWeight: 800,
-                textAlign: "center",
-                padding: "4px 0",
-                textTransform: "uppercase",
+                color: "#ff6b6b",
+                background: "rgba(239, 68, 68, 0.16)",
+                padding: "3px 8px",
+                borderRadius: "4px",
+                letterSpacing: "0.06em",
               }}
             >
-              SUN
-            </div>
-
-            {/* Calendar Day & Big Red 'X' */}
-            <div
-              style={{
-                flexGrow: 1,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontFamily: "var(--font-display)",
-                fontSize: "1.6rem",
-                fontWeight: 800,
-                color: "var(--text-muted)",
-                position: "relative",
-              }}
-            >
-              CLOSED
-              {/* Diagonal Cross Lines */}
-              <div
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <div
-                  style={{
-                    position: "absolute",
-                    width: "85%",
-                    height: "3px",
-                    background: "var(--accent-red)",
-                    transform: "rotate(45deg)",
-                    boxShadow: "0 0 8px var(--accent-red)",
-                  }}
-                />
-                <div
-                  style={{
-                    position: "absolute",
-                    width: "85%",
-                    height: "3px",
-                    background: "var(--accent-red)",
-                    transform: "rotate(-45deg)",
-                    boxShadow: "0 0 8px var(--accent-red)",
-                  }}
-                />
-              </div>
-            </div>
+              SUNDAY: CLOSED
+            </span>
+            <span style={{ fontSize: "0.84rem", color: "var(--text-muted)" }}>
+              Fleet maintenance, dual-control brake servicing & instructor rest.
+            </span>
           </div>
 
-          {/* Sunday Notice Text */}
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "6px" }}>
-              <span
-                style={{
-                  fontFamily: "var(--font-mono)",
-                  fontSize: "0.8rem",
-                  fontWeight: 800,
-                  color: "var(--accent-red)",
-                  background: "rgba(239, 68, 68, 0.15)",
-                  padding: "4px 10px",
-                  borderRadius: "4px",
-                  border: "1px solid rgba(239, 68, 68, 0.4)",
-                }}
-              >
-                SUNDAY CLOSED
-              </span>
-              <span style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>
-                Fleet Maintenance & Road Safety Day
-              </span>
-            </div>
-
-            <h4
-              style={{
-                fontSize: "1.25rem",
-                fontWeight: 700,
-                color: "var(--text-white)",
-                marginBottom: "8px",
-              }}
-            >
-              Active Training Schedule: Monday through Saturday
-            </h4>
-
-            <p style={{ fontSize: "0.88rem", color: "var(--text-body)", lineHeight: 1.5 }}>
-              On Sundays, our dual-control vehicles undergo strict mechanical inspections, brake
-              servicing, sanitization, and tire safety checks. All batch training is conducted
-              Monday through Saturday across the three morning slots.
-            </p>
-
-            <div
-              style={{
-                marginTop: "10px",
-                fontSize: "0.78rem",
-                color: "var(--text-dim)",
-                fontFamily: "var(--font-mono)",
-              }}
-            >
-              * Note: Time slots shown are informational and subject to batch confirmation upon
-              admission.
-            </div>
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+              fontSize: "0.78rem",
+              color: "var(--text-dim)",
+              fontFamily: "var(--font-mono)",
+            }}
+          >
+            <ShieldCheck size={14} color="var(--accent-yellow)" />
+            <span>Mon–Sat Active Batches</span>
           </div>
         </div>
       </div>

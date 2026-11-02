@@ -1088,7 +1088,7 @@ export const EducationalPanel: React.FC<EducationalPanelProps> = ({
               Key Components in This Scene:
             </span>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
-              {currentStage.hotspotIds.map((hid) => {
+              {currentStage.hotspotIds.map((hid: string) => {
                 const spot = COMPONENT_HOTSPOTS[hid];
                 if (!spot) return null;
                 return (

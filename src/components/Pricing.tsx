@@ -1,6 +1,6 @@
-import React from "react";
-import { Check, Sparkles, ArrowRight } from "lucide-react";
-import type { PricingPlan } from "../types";
+import React, { useState } from "react";
+import { Check, Sparkles, MessageSquare, Car, Bike, Truck } from "lucide-react";
+import { SITE_DATA } from "../config/siteData";
 import { createWhatsAppLink } from "../config/contact";
 
 interface PricingProps {
@@ -8,88 +8,45 @@ interface PricingProps {
 }
 
 export const Pricing: React.FC<PricingProps> = ({ selectedVehicle }) => {
-  const plans: PricingPlan[] = [
-    {
-      id: "group",
-      name: "Group Training",
-      subtitle: "Collaborative, budget-friendly learning",
-      price: 3000,
-      priceFormatted: "₹3,000",
-      duration: "20 Days",
-      studentsPerSession: "Normally 3 (Up to 4 max)",
-      sessionDuration: "1 Hour / Day",
-      attentionLevel: "Shared (1:3 - 1:4)",
-      description:
-        "Ideal for budget-conscious beginners who benefit from peer observation and group learning dynamics.",
-      features: [
-        "Affordable group learning format",
-        "Shared instructor attention (3-4 learners per vehicle)",
-        "Daily 1-hour session with alternating wheel time",
-        "Full 20-day structured syllabus",
-        "Dual-control training vehicle safety",
-        "Foundational traffic rules & road awareness",
-      ],
-      whatsappMessage:
-        "Hello Ghosh Motor Training School, I am interested in joining the Group Training plan (₹3,000, 20 Days). Please share details.",
-    },
-    {
-      id: "semi-personal",
-      name: "Semi-Personal Training",
-      subtitle: "Balanced pacing & higher wheel time",
-      price: 5500,
-      priceFormatted: "₹5,500",
-      duration: "20 Days",
-      studentsPerSession: "2 Students Only",
-      sessionDuration: "1 Hour / Day",
-      attentionLevel: "Semi-Individual (1:2)",
-      description:
-        "The sweet spot for learners wanting double the behind-the-wheel practice with a smaller peer group.",
-      features: [
-        "More individual instructor attention",
-        "Smaller group strictly limited to 2 learners per car",
-        "Substantially increased hands-on wheel time",
-        "Full 20-day comprehensive training programme",
-        "Faster error correction & targeted maneuvers",
-        "Dual-control training vehicle safety",
-      ],
-      badge: "BALANCED CHOICE",
-      whatsappMessage:
-        "Hello Ghosh Motor Training School, I am interested in joining the Semi-Personal Training plan (₹5,500, 20 Days). Please share details.",
-    },
-    {
-      id: "personal",
-      name: "Personal Training",
-      subtitle: "100% Dedicated 1-on-1 instruction",
-      price: 11000,
-      priceFormatted: "₹11,000",
-      duration: "20 Days",
-      studentsPerSession: "1 Student (1-on-1)",
-      sessionDuration: "1 Hour / Day",
-      attentionLevel: "1-on-1 Dedicated (1:1)",
-      description:
-        "Premium one-to-one coaching tailored entirely to your learning speed, confidence level, and schedule.",
-      features: [
-        "100% Dedicated one-to-one instructor attention",
-        "Full 60 minutes uninterrupted daily driving time",
-        "Customized learning pace focused on your weak spots",
-        "Full 20-day intensive training programme",
-        "Faster confidence building in dense city traffic",
-        "Priority batch scheduling & dual-control safety",
-      ],
-      featured: true,
-      badge: "MOST POPULAR • MAXIMUM TIME",
-      whatsappMessage:
-        "Hello Ghosh Motor Training School, I am interested in joining the 1-on-1 Personal Training plan (₹11,000, 20 Days). Please share details.",
-    },
-  ];
+  // Available vehicle categories: 2 Wheelers, 4 Wheelers, MGV
+  const vehicleCategories = SITE_DATA.vehicles;
+  
+  // Track user-clicked category override; fallback to selectedVehicle prop or default to "four-wheelers"
+  const [userSelectedCategory, setUserSelectedCategory] = useState<string | null>(null);
+
+  const matchedPropCategory = selectedVehicle
+    ? vehicleCategories.find(
+        (v) =>
+          v.id === selectedVehicle ||
+          v.name.toLowerCase() === selectedVehicle.toLowerCase() ||
+          v.shortName.toLowerCase() === selectedVehicle.toLowerCase()
+      )?.id
+    : undefined;
+
+  const activeCategory = userSelectedCategory ?? matchedPropCategory ?? "four-wheelers";
+
+  const currentCategoryData = vehicleCategories.find((v) => v.id === activeCategory) || vehicleCategories[1];
+  const plans = SITE_DATA.pricingPlans;
+
+  const getVehicleIcon = (id: string) => {
+    switch (id) {
+      case "two-wheelers":
+        return <Bike size={18} />;
+      case "mgv":
+        return <Truck size={18} />;
+      case "four-wheelers":
+      default:
+        return <Car size={18} />;
+    }
+  };
 
   return (
-    <section id="pricing" className="section-spacing" style={{ backgroundColor: "var(--bg-primary)" }}>
+    <section id="pricing" className="section-spacing" style={{ backgroundColor: "var(--bg-primary)", position: "relative" }}>
       {/* Background ambient lighting */}
       <div
         style={{
           position: "absolute",
-          top: "20%",
+          top: "15%",
           left: "50%",
           transform: "translateX(-50%)",
           width: "700px",
@@ -103,41 +60,130 @@ export const Pricing: React.FC<PricingProps> = ({ selectedVehicle }) => {
       <div className="container" style={{ position: "relative", zIndex: 2 }}>
         {/* Section Header */}
         <div className="section-header">
-          <div className="section-tag">20-DAY PACKAGES</div>
-          <h2 className="section-title">CHOOSE YOUR DRIVING EXPERIENCE</h2>
+          <div className="section-tag">20-DAY PRACTICAL CURRICULUM</div>
+          <h2 className="section-title">CHOOSE YOUR TRAINING PLAN</h2>
           <p className="section-subtitle">
-            Flexible training options designed around your learning preference. Each plan spans a
-            rigorous 20-day training programme with clear distinctions in instructor attention and
-            wheel time.
+            Select a vehicle category to explore available training prices. Every plan includes a 20-day
+            structured driving curriculum with dual-control vehicle safety.
           </p>
-          {selectedVehicle && (
-            <div
-              style={{
-                marginTop: "16px",
-                display: "inline-block",
-                fontFamily: "var(--font-mono)",
-                fontSize: "0.82rem",
-                color: "var(--accent-yellow)",
-                background: "var(--accent-yellow-dim)",
-                padding: "6px 14px",
-                borderRadius: "var(--radius-full)",
-                border: "1px solid rgba(255, 229, 0, 0.3)",
-              }}
-            >
-              Selected Fleet Category: <strong>{selectedVehicle}</strong>
-            </div>
-          )}
         </div>
 
-        {/* 3 Pricing Cards Grid */}
+        {/* Visible Vehicle Category Selector Tabs */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            flexWrap: "wrap",
+            gap: "12px",
+            marginBottom: "32px",
+          }}
+        >
+          {vehicleCategories.map((cat) => {
+            const isSelected = activeCategory === cat.id;
+            return (
+              <button
+                key={cat.id}
+                type="button"
+                onClick={() => setUserSelectedCategory(cat.id)}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "10px",
+                  padding: "12px 24px",
+                  borderRadius: "var(--radius-full)",
+                  background: isSelected
+                    ? "linear-gradient(135deg, rgba(255, 229, 0, 0.22) 0%, rgba(255, 229, 0, 0.08) 100%)"
+                    : "rgba(255, 255, 255, 0.04)",
+                  border: isSelected ? "2px solid var(--accent-yellow)" : "1px solid rgba(255, 255, 255, 0.12)",
+                  color: isSelected ? "var(--accent-yellow)" : "var(--text-muted)",
+                  fontFamily: "var(--font-display)",
+                  fontSize: "0.92rem",
+                  fontWeight: isSelected ? 800 : 600,
+                  cursor: "pointer",
+                  transition: "all 0.25s ease",
+                  boxShadow: isSelected ? "0 0 20px rgba(255, 229, 0, 0.2)" : "none",
+                }}
+              >
+                {getVehicleIcon(cat.id)}
+                <span>{cat.shortName}</span>
+                {isSelected && (
+                  <span
+                    style={{
+                      width: "6px",
+                      height: "6px",
+                      borderRadius: "50%",
+                      backgroundColor: "var(--accent-yellow)",
+                      boxShadow: "0 0 8px var(--accent-yellow)",
+                    }}
+                  />
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Prominent Active Fleet Banner */}
+        <div
+          style={{
+            maxWidth: "760px",
+            margin: "0 auto 40px auto",
+            padding: "14px 20px",
+            borderRadius: "var(--radius-md)",
+            background: "rgba(20, 24, 34, 0.7)",
+            border: "1px solid rgba(255, 229, 0, 0.25)",
+            backdropFilter: "blur(10px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: "12px",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <div
+              style={{
+                width: "36px",
+                height: "36px",
+                borderRadius: "8px",
+                background: "rgba(255, 229, 0, 0.12)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "var(--accent-yellow)",
+              }}
+            >
+              {getVehicleIcon(currentCategoryData.id)}
+            </div>
+            <div>
+              <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.72rem", color: "var(--accent-yellow)", textTransform: "uppercase" }}>
+                Selected Category Pricing
+              </div>
+              <div style={{ fontSize: "0.94rem", fontWeight: 700, color: "var(--text-white)" }}>
+                {currentCategoryData.name} — {currentCategoryData.tagline}
+              </div>
+            </div>
+          </div>
+
+          <div
+            style={{
+              fontSize: "0.78rem",
+              color: "var(--text-dim)",
+              fontFamily: "var(--font-mono)",
+            }}
+          >
+            {currentCategoryData.badge}
+          </div>
+        </div>
+
+        {/* 3 Pricing Cards Grid: Group (₹3,000), Semi-Personal (₹5,500), Personal (₹11,000) */}
         <div
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 300px), 1fr))",
             gap: "clamp(24px, 3.5vw, 32px)",
             alignItems: "stretch",
-            marginBottom: "50px",
             paddingTop: "20px",
+            marginBottom: "50px",
           }}
         >
           {plans.map((plan) => {
@@ -146,26 +192,28 @@ export const Pricing: React.FC<PricingProps> = ({ selectedVehicle }) => {
             return (
               <div
                 key={plan.id}
-                className={`glass-card ${isFeatured ? "card-yellow-glow animate-pulse-glow" : ""}`}
+                className={`glass-card ${isFeatured ? "card-yellow-glow" : ""}`}
                 style={{
                   display: "flex",
                   flexDirection: "column",
                   justifyContent: "space-between",
-                  padding: "clamp(28px, 4vw, 40px) clamp(18px, 3vw, 30px) clamp(24px, 4vw, 36px)",
+                  padding: "clamp(28px, 4vw, 36px) clamp(20px, 3vw, 28px)",
                   borderRadius: "var(--radius-xl)",
                   background: isFeatured
                     ? "linear-gradient(180deg, rgba(26, 32, 48, 0.95) 0%, rgba(14, 18, 28, 0.98) 100%)"
-                    : "linear-gradient(180deg, rgba(16, 20, 30, 0.8) 0%, rgba(10, 12, 18, 0.9) 100%)",
+                    : "linear-gradient(180deg, rgba(16, 20, 30, 0.85) 0%, rgba(10, 12, 18, 0.95) 100%)",
                   border: isFeatured
                     ? "2px solid var(--accent-yellow)"
                     : "1px solid rgba(255, 255, 255, 0.1)",
                   position: "relative",
-                  transform: isFeatured ? "scale(1.02)" : "scale(1)",
+                  overflow: "visible",
+                  boxShadow: isFeatured
+                    ? "0 20px 50px rgba(0,0,0,0.8), 0 0 35px rgba(255, 229, 0, 0.2)"
+                    : "var(--shadow-md)",
                   transition: "all 0.3s ease",
-                  overflow: "visible", // Prevent badge from being clipped
                 }}
               >
-                {/* Top Badge for Featured / Recommended */}
+                {/* Featured Badge */}
                 {plan.badge && (
                   <div
                     style={{
@@ -174,372 +222,175 @@ export const Pricing: React.FC<PricingProps> = ({ selectedVehicle }) => {
                       left: "50%",
                       transform: "translateX(-50%)",
                       background: isFeatured
-                        ? "var(--accent-yellow)"
-                        : "rgba(22, 27, 40, 0.96)",
-                      color: isFeatured ? "#000000" : "var(--text-white)",
+                        ? "linear-gradient(135deg, #FFE500 0%, #FFCC00 100%)"
+                        : "rgba(24, 30, 44, 0.96)",
+                      color: isFeatured ? "#000000" : "var(--accent-yellow)",
                       fontFamily: "var(--font-mono)",
                       fontSize: "0.72rem",
                       fontWeight: 800,
-                      letterSpacing: "0.08em",
-                      lineHeight: 1.2,
                       padding: "5px 16px",
                       borderRadius: "var(--radius-full)",
-                      boxShadow: isFeatured
-                        ? "0 4px 18px rgba(255, 229, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.5)"
-                        : "0 4px 14px rgba(0, 0, 0, 0.7)",
-                      border: isFeatured
-                        ? "1px solid #ffffff"
-                        : "1px solid rgba(255, 255, 255, 0.22)",
+                      letterSpacing: "0.08em",
+                      textTransform: "uppercase",
                       whiteSpace: "nowrap",
+                      boxShadow: isFeatured
+                        ? "0 4px 18px rgba(255, 229, 0, 0.45)"
+                        : "0 4px 14px rgba(0, 0, 0, 0.6)",
+                      border: isFeatured
+                        ? "1.5px solid #FFE500"
+                        : "1px solid rgba(255, 229, 0, 0.35)",
                       zIndex: 10,
-                      display: "inline-flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      backdropFilter: "blur(10px)",
-                      WebkitBackdropFilter: "blur(10px)",
                     }}
                   >
+                    {isFeatured && <Sparkles size={11} style={{ display: "inline", marginRight: "4px" }} />}
                     {plan.badge}
                   </div>
                 )}
 
                 <div>
                   {/* Plan Name & Subtitle */}
-                  <div style={{ marginBottom: "20px" }}>
+                  <div style={{ marginBottom: "20px", marginTop: plan.badge ? "10px" : "0" }}>
                     <h3
                       style={{
-                        fontSize: "1.65rem",
+                        fontSize: "1.45rem",
                         fontWeight: 800,
                         color: "var(--text-white)",
-                        marginBottom: "6px",
+                        marginBottom: "4px",
                       }}
                     >
                       {plan.name}
                     </h3>
-                    <p style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>
-                      {plan.subtitle}
-                    </p>
+                    <p style={{ fontSize: "0.84rem", color: "var(--text-muted)" }}>{plan.subtitle}</p>
                   </div>
 
                   {/* Price Block */}
                   <div
                     style={{
-                      display: "flex",
-                      alignItems: "baseline",
-                      gap: "8px",
-                      marginBottom: "24px",
-                      paddingBottom: "22px",
+                      padding: "16px 0",
+                      borderTop: "1px solid rgba(255, 255, 255, 0.08)",
                       borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+                      marginBottom: "22px",
                     }}
                   >
-                    <span
-                      className="notranslate"
-                      translate="no"
-                      style={{
-                        fontFamily: "var(--font-display)",
-                        fontSize: "clamp(2.4rem, 3.5vw, 3.2rem)",
-                        fontWeight: 800,
-                        color: isFeatured ? "var(--accent-yellow)" : "var(--text-white)",
-                        lineHeight: 1,
-                      }}
-                    >
-                      {plan.priceFormatted}
-                    </span>
-                    <span
-                      style={{
-                        fontFamily: "var(--font-mono)",
-                        fontSize: "0.85rem",
-                        color: "var(--text-muted)",
-                      }}
-                    >
-                      / 20-Day Course
-                    </span>
-                  </div>
-
-                  {/* Core Metrics Grid */}
-                  <div
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: "1fr 1fr",
-                      gap: "10px",
-                      marginBottom: "24px",
-                      background: "rgba(0, 0, 0, 0.25)",
-                      padding: "12px",
-                      borderRadius: "var(--radius-md)",
-                      border: "1px solid rgba(255, 255, 255, 0.05)",
-                    }}
-                  >
-                    <div>
-                      <div style={{ fontSize: "0.7rem", color: "var(--text-dim)", fontFamily: "var(--font-mono)" }}>
-                        STUDENTS / CAR
-                      </div>
-                      <div
+                    <div style={{ display: "flex", alignItems: "baseline", gap: "6px" }}>
+                      <span
                         style={{
-                          fontSize: "0.88rem",
-                          fontWeight: 700,
+                          fontSize: "clamp(2.1rem, 5vw, 2.7rem)",
+                          fontWeight: 900,
                           color: isFeatured ? "var(--accent-yellow)" : "var(--text-white)",
-                          marginTop: "2px",
+                          fontFamily: "var(--font-display)",
+                          lineHeight: 1,
                         }}
                       >
-                        {plan.studentsPerSession}
-                      </div>
+                        {plan.priceFormatted}
+                      </span>
+                      <span style={{ fontSize: "0.85rem", color: "var(--text-dim)" }}>/ full course</span>
                     </div>
 
-                    <div>
-                      <div style={{ fontSize: "0.7rem", color: "var(--text-dim)", fontFamily: "var(--font-mono)" }}>
-                        DAILY DURATION
-                      </div>
-                      <div
-                        style={{
-                          fontSize: "0.88rem",
-                          fontWeight: 700,
-                          color: "var(--text-white)",
-                          marginTop: "2px",
-                        }}
-                      >
-                        {plan.sessionDuration}
-                      </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "14px",
+                        marginTop: "10px",
+                        fontSize: "0.8rem",
+                        color: "var(--text-muted)",
+                        fontFamily: "var(--font-mono)",
+                      }}
+                    >
+                      <span>⏱ {plan.duration}</span>
+                      <span>•</span>
+                      <span>🚗 {plan.sessionDuration}</span>
+                      <span>•</span>
+                      <span>👥 {plan.studentsPerSession}</span>
                     </div>
                   </div>
 
-                  {/* Description */}
-                  <p
-                    style={{
-                      fontSize: "0.88rem",
-                      color: "var(--text-body)",
-                      lineHeight: 1.55,
-                      marginBottom: "24px",
-                    }}
-                  >
-                    {plan.description}
-                  </p>
-
-                  {/* Features List */}
+                  {/* Attention Level Highlight */}
                   <div
                     style={{
+                      background: "rgba(255, 255, 255, 0.04)",
+                      padding: "10px 14px",
+                      borderRadius: "var(--radius-sm)",
+                      marginBottom: "20px",
+                      fontSize: "0.82rem",
                       display: "flex",
-                      flexDirection: "column",
-                      gap: "12px",
-                      marginBottom: "32px",
+                      alignItems: "center",
+                      justifyContent: "space-between",
                     }}
                   >
-                    {plan.features.map((feat, i) => (
+                    <span style={{ color: "var(--text-muted)" }}>Instructor Ratio:</span>
+                    <strong style={{ color: "var(--accent-yellow)", fontFamily: "var(--font-mono)" }}>
+                      {plan.attentionLevel}
+                    </strong>
+                  </div>
+
+                  {/* Plan Features Checklist */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: "11px", marginBottom: "30px" }}>
+                    {plan.features.map((feature, fIdx) => (
                       <div
-                        key={i}
+                        key={fIdx}
                         style={{
                           display: "flex",
                           alignItems: "flex-start",
                           gap: "10px",
                           fontSize: "0.86rem",
                           color: "var(--text-body)",
+                          lineHeight: 1.45,
                         }}
                       >
-                        <div
-                          style={{
-                            width: "18px",
-                            height: "18px",
-                            borderRadius: "50%",
-                            background: isFeatured
-                              ? "var(--accent-yellow-dim)"
-                              : "rgba(255, 255, 255, 0.08)",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            flexShrink: 0,
-                            marginTop: "2px",
-                          }}
-                        >
-                          <Check
-                            size={12}
-                            color={isFeatured ? "var(--accent-yellow)" : "var(--text-muted)"}
-                          />
-                        </div>
-                        <span>{feat}</span>
+                        <Check
+                          size={16}
+                          color="var(--accent-yellow)"
+                          style={{ flexShrink: 0, marginTop: "2px" }}
+                        />
+                        <span>{feature}</span>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                {/* Enquire Now CTA Button */}
+                {/* Enquire Now CTA */}
                 <a
                   href={createWhatsAppLink({
-                    planName: plan.name,
-                    price: plan.priceFormatted,
-                    type: "plan",
+                    planName: `${plan.name} (${currentCategoryData.shortName})`,
+                    timeSlot: "Morning Batches (6-9 AM)",
                   })}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`btn ${isFeatured ? "btn-primary" : "btn-secondary"}`}
+                  className={isFeatured ? "btn btn-primary" : "btn btn-secondary"}
                   style={{
                     width: "100%",
-                    padding: "14px 20px",
-                    fontSize: "0.92rem",
-                    borderRadius: "var(--radius-md)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "8px",
+                    padding: "14px",
+                    fontSize: "0.9rem",
+                    textDecoration: "none",
                   }}
                 >
+                  <MessageSquare size={16} />
                   <span>Enquire Now</span>
-                  <ArrowRight size={16} />
                 </a>
               </div>
             );
           })}
         </div>
 
-        {/* Plan Comparison Matrix Table */}
+        {/* Clear Notice regarding Pricing Integrity */}
         <div
-          className="glass-card"
           style={{
-            padding: "clamp(20px, 3.5vw, 32px)",
-            borderRadius: "var(--radius-xl)",
-            background: "rgba(14, 17, 26, 0.9)",
-            border: "1px solid rgba(255, 255, 255, 0.1)",
+            textAlign: "center",
+            fontSize: "0.82rem",
+            color: "var(--text-dim)",
+            fontFamily: "var(--font-mono)",
+            maxWidth: "700px",
+            margin: "0 auto",
           }}
         >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              flexWrap: "wrap",
-              gap: "10px",
-              marginBottom: "18px",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              <Sparkles size={20} color="var(--accent-yellow)" />
-              <h4 style={{ fontSize: "clamp(1rem, 2.5vw, 1.25rem)", color: "var(--text-white)", margin: 0 }}>
-                DIRECT COMPARISON: ATTENTION & TRAINING FORMAT
-              </h4>
-            </div>
-
-            <div className="swipe-hint-badge">
-              <span>← Swipe table horizontally to compare →</span>
-            </div>
-          </div>
-
-          <div className="table-responsive-wrapper">
-            <table
-              style={{
-                width: "100%",
-                borderCollapse: "collapse",
-                minWidth: "620px",
-                fontSize: "0.88rem",
-              }}
-            >
-            <thead>
-              <tr style={{ borderBottom: "1px solid rgba(255, 255, 255, 0.12)" }}>
-                <th style={{ textAlign: "left", padding: "14px 10px", color: "var(--text-muted)" }}>
-                  Training Parameter
-                </th>
-                <th style={{ textAlign: "center", padding: "14px 10px", color: "var(--text-white)" }}>
-                  Group Training (₹3,000)
-                </th>
-                <th style={{ textAlign: "center", padding: "14px 10px", color: "var(--text-white)" }}>
-                  Semi-Personal (₹5,500)
-                </th>
-                <th
-                  style={{
-                    textAlign: "center",
-                    padding: "14px 10px",
-                    color: "var(--accent-yellow)",
-                    fontWeight: 800,
-                  }}
-                >
-                  Personal Training (₹11,000)
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr style={{ borderBottom: "1px solid rgba(255, 255, 255, 0.06)" }}>
-                <td style={{ padding: "14px 10px", color: "var(--text-body)" }}>
-                  Instructor Dedication
-                </td>
-                <td style={{ textAlign: "center", padding: "14px 10px", color: "var(--text-dim)" }}>
-                  Shared among 3–4 learners
-                </td>
-                <td style={{ textAlign: "center", padding: "14px 10px", color: "var(--text-body)" }}>
-                  Shared between 2 learners
-                </td>
-                <td
-                  style={{
-                    textAlign: "center",
-                    padding: "14px 10px",
-                    color: "var(--accent-yellow)",
-                    fontWeight: 700,
-                  }}
-                >
-                  100% Dedicated to you
-                </td>
-              </tr>
-
-              <tr style={{ borderBottom: "1px solid rgba(255, 255, 255, 0.06)" }}>
-                <td style={{ padding: "14px 10px", color: "var(--text-body)" }}>
-                  In-Car Daily Wheel Time
-                </td>
-                <td style={{ textAlign: "center", padding: "14px 10px", color: "var(--text-dim)" }}>
-                  Rotational during 1 hour
-                </td>
-                <td style={{ textAlign: "center", padding: "14px 10px", color: "var(--text-body)" }}>
-                  ~30 mins direct driving / day
-                </td>
-                <td
-                  style={{
-                    textAlign: "center",
-                    padding: "14px 10px",
-                    color: "var(--accent-yellow)",
-                    fontWeight: 700,
-                  }}
-                >
-                  Full 60 mins non-stop driving
-                </td>
-              </tr>
-
-              <tr style={{ borderBottom: "1px solid rgba(255, 255, 255, 0.06)" }}>
-                <td style={{ padding: "14px 10px", color: "var(--text-body)" }}>
-                  Customized Learning Speed
-                </td>
-                <td style={{ textAlign: "center", padding: "14px 10px", color: "var(--text-dim)" }}>
-                  Standard group pace
-                </td>
-                <td style={{ textAlign: "center", padding: "14px 10px", color: "var(--text-body)" }}>
-                  Moderate adaptation
-                </td>
-                <td
-                  style={{
-                    textAlign: "center",
-                    padding: "14px 10px",
-                    color: "var(--accent-yellow)",
-                    fontWeight: 700,
-                  }}
-                >
-                  100% Customized to your confidence
-                </td>
-              </tr>
-
-              <tr>
-                <td style={{ padding: "14px 10px", color: "var(--text-body)" }}>
-                  Total Course Span
-                </td>
-                <td style={{ textAlign: "center", padding: "14px 10px", color: "var(--text-white)" }}>
-                  20 Days
-                </td>
-                <td style={{ textAlign: "center", padding: "14px 10px", color: "var(--text-white)" }}>
-                  20 Days
-                </td>
-                <td
-                  style={{
-                    textAlign: "center",
-                    padding: "14px 10px",
-                    color: "var(--accent-yellow)",
-                    fontWeight: 700,
-                  }}
-                >
-                  20 Days
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          </div>
+          * All packages span 20 operational days with dual-control safety vehicles and verified fuel.
+          Licence application support available separately at ₹3,000.
         </div>
       </div>
     </section>

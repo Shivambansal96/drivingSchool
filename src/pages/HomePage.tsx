@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Hero } from "../components/Hero";
-import { KnowYourCarSection } from "../components/know-your-car/KnowYourCarSection";
 import { VehicleCategories } from "../components/VehicleCategories";
 import { Pricing } from "../components/Pricing";
 import { DailySchedule } from "../components/DailySchedule";
@@ -35,13 +34,11 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
 
   return (
     <main id="home-page" style={{ position: "relative" }}>
-      {/* 1. Hero & Realistic 3D WagonR Masterclass Experience */}
+      {/* 1. Hero Section */}
       <Hero
         onExploreCourses={scrollToPricing}
         onContactUs={() => onNavigate("contact")}
       />
-
-      <KnowYourCarSection onExploreCourses={scrollToPricing} />
 
       {/* 2. Vehicles Section (2 Wheelers, 4 Wheelers, MGV) */}
       <VehicleCategories onSelectCategory={handleSelectVehicle} />

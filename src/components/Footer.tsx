@@ -162,7 +162,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                   onMouseEnter={(e) => (e.currentTarget.style.color = "var(--accent-yellow)")}
                   onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-body)")}
                 >
-                  Home (3D Car & Courses)
+                  Home (Courses & Pricing)
                 </a>
               </li>
               <li>

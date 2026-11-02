@@ -1,6 +1,5 @@
 import React from "react";
-import { ArrowRight, PhoneCall } from "lucide-react";
-import { Hero3DCar } from "./Hero3DCar";
+import { ArrowRight, PhoneCall, ShieldCheck } from "lucide-react";
 
 interface HeroProps {
   onExploreCourses: () => void;
@@ -226,19 +225,138 @@ export const Hero: React.FC<HeroProps> = ({ onExploreCourses, onContactUs }) => 
             </div>
           </div>
 
-          {/* Right Column: 3D Car Visual Attraction */}
+          {/* Right Column: Training Fleet Visual Showcase */}
           <div
-            className="hero-3d-wrapper"
+            className="hero-fleet-showcase"
             style={{
               position: "relative",
               width: "100%",
-              height: "clamp(340px, 50vh, 560px)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
+              maxWidth: "560px",
+              margin: "0 auto",
             }}
           >
-            <Hero3DCar />
+            {/* Glowing Accent Aura */}
+            <div
+              style={{
+                position: "absolute",
+                inset: "-8px",
+                background: "radial-gradient(ellipse at center, rgba(255, 229, 0, 0.15) 0%, rgba(255, 229, 0, 0) 70%)",
+                filter: "blur(20px)",
+                borderRadius: "28px",
+                pointerEvents: "none",
+                zIndex: 0,
+              }}
+            />
+
+            {/* Showcase Card */}
+            <div
+              style={{
+                position: "relative",
+                zIndex: 1,
+                borderRadius: "20px",
+                overflow: "hidden",
+                border: "1px solid rgba(255, 255, 255, 0.12)",
+                boxShadow: "0 24px 60px rgba(0, 0, 0, 0.7), 0 0 35px rgba(255, 229, 0, 0.08)",
+                background: "linear-gradient(145deg, rgba(20, 24, 36, 0.95) 0%, rgba(10, 12, 18, 0.98) 100%)",
+              }}
+            >
+              <div style={{ position: "relative", overflow: "hidden" }}>
+                <img
+                  src="/images/assets/wagonR car + bike.jpg"
+                  alt="Ghosh Motor Training School Training Fleet - Maruti WagonR and Two Wheeler"
+                  style={{
+                    width: "100%",
+                    height: "auto",
+                    display: "block",
+                    objectFit: "cover",
+                    aspectRatio: "4 / 3",
+                    transition: "transform 0.5s ease",
+                  }}
+                />
+
+                {/* Top Corner Pill Badge */}
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "16px",
+                    left: "16px",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    background: "rgba(8, 10, 15, 0.82)",
+                    backdropFilter: "blur(12px)",
+                    WebkitBackdropFilter: "blur(12px)",
+                    border: "1px solid rgba(255, 229, 0, 0.4)",
+                    color: "var(--accent-yellow)",
+                    padding: "6px 12px",
+                    borderRadius: "var(--radius-full)",
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "0.72rem",
+                    fontWeight: 700,
+                    letterSpacing: "0.04em",
+                  }}
+                >
+                  <ShieldCheck size={14} color="var(--accent-yellow)" />
+                  GOVT. REGISTERED FLEET
+                </div>
+              </div>
+
+              {/* Card Footer Bar */}
+              <div
+                style={{
+                  padding: "18px 22px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  flexWrap: "wrap",
+                  gap: "10px",
+                  borderTop: "1px solid rgba(255, 255, 255, 0.08)",
+                  background: "rgba(10, 12, 18, 0.8)",
+                }}
+              >
+                <div>
+                  <div
+                    style={{
+                      fontFamily: "var(--font-display)",
+                      fontSize: "0.95rem",
+                      fontWeight: 800,
+                      color: "var(--text-white)",
+                      letterSpacing: "0.02em",
+                    }}
+                  >
+                    Maruti Suzuki WagonR & 2-Wheeler Fleet
+                  </div>
+                  <div
+                    style={{
+                      fontFamily: "var(--font-body)",
+                      fontSize: "0.76rem",
+                      color: "var(--text-muted)",
+                      marginTop: "2px",
+                    }}
+                  >
+                    Dual-Control Safety Pedals • Certified Instructors
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    background: "rgba(255, 229, 0, 0.12)",
+                    border: "1px solid rgba(255, 229, 0, 0.3)",
+                    color: "var(--accent-yellow)",
+                    padding: "4px 10px",
+                    borderRadius: "6px",
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "0.72rem",
+                    fontWeight: 700,
+                  }}
+                >
+                  RTO CERTIFIED
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

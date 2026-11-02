@@ -643,73 +643,6 @@ html, body, #root, .app-root {
   overflow-x: clip;
 }
 
-/* 3D Car Container Responsive Heights */
-.hero-3d-car-container {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  min-height: 520px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-@media (max-width: 1024px) {
-  .hero-3d-car-container {
-    min-height: 440px;
-  }
-}
-
-@media (max-width: 768px) {
-  .hero-3d-car-container {
-    min-height: 360px;
-  }
-}
-
-@media (max-width: 480px) {
-  .hero-3d-car-container {
-    min-height: 310px;
-  }
-}
-
-@media (max-width: 360px) {
-  .hero-3d-car-container {
-    min-height: 270px;
-  }
-}
-
-/* Responsive HUD bar */
-.hud-controls-container {
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  z-index: 10;
-  background: rgba(10, 13, 20, 0.85);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  padding: 10px 18px;
-  border-radius: var(--radius-full);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.7);
-  max-width: 95%;
-  transition: all 0.3s ease;
-}
-
-@media (max-width: 640px) {
-  .hud-controls-container {
-    bottom: 10px;
-    padding: 7px 12px;
-    gap: 8px;
-    border-radius: var(--radius-md);
-    max-width: 96%;
-  }
-}
 
 /* First-Visit Tooltip Responsive Placement */
 .first-visit-tooltip-container {
@@ -768,54 +701,6 @@ html, body, #root, .app-root {
   }
 }
 
-/* ============================================================ */
-/* KNOW YOUR CAR 3D MASTERCLASS STYLES                          */
-/* ============================================================ */
-@keyframes hotspotPulse {
-  0% {
-    transform: scale(0.85);
-    opacity: 0.9;
-  }
-  50% {
-    transform: scale(1.5);
-    opacity: 0.15;
-  }
-  100% {
-    transform: scale(0.85);
-    opacity: 0.9;
-  }
-}
-
-.educational-panel::-webkit-scrollbar {
-  width: 6px;
-}
-
-.educational-panel::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.04);
-  border-radius: 10px;
-}
-
-.educational-panel::-webkit-scrollbar-thumb {
-  background: rgba(255, 229, 0, 0.35);
-  border-radius: 10px;
-}
-
-.educational-panel::-webkit-scrollbar-thumb:hover {
-  background: var(--accent-yellow);
-}
-
-@media (max-width: 900px) {
-  #know-your-car {
-    overflow-x: hidden;
-  }
-  .educational-panel {
-    max-height: none !important;
-    height: auto !important;
-    overflow-y: visible !important;
-    padding: clamp(16px, 4vw, 24px) !important;
-    border-radius: 18px !important;
-  }
-}
 
 /* Reduced Motion Optimization (Accessibility & Performance) */
 @media (prefers-reduced-motion: reduce) {
